@@ -1,9 +1,11 @@
+/// Describes what a given phase/coil/inductor is doing
 pub enum PhaseState {
     Off,
     On,
     Hi,
     Lo,
 }
+
 pub trait BLDCDriver: Sized {
     fn init() -> Result<Self, ()>;
     fn enable(&mut self);

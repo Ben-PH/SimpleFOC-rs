@@ -1,6 +1,8 @@
 use embedded_hal::digital::InputPin;
 
-pub trait PosSensor: crate::types::MovementOrientation {
+use crate::types::MovementOrientation;
+
+pub trait PosSensor: MovementOrientation {
     fn position(&self) -> ();
     fn velocity(&self) -> ();
     // fn acceleration(&self) -> ();

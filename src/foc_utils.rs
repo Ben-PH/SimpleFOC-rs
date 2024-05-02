@@ -12,22 +12,25 @@ pub const _1_SQRT3: f32 = 0.577_350_269_19;
 pub const SQRT3_2: f32 = 0.866_025_403_78;
 pub const _120_D2R: f32 = 2.094_395_102_39;
 
+struct Current(f32);
+struct Voltage(f32);
+
 pub struct DQCurrent {
-    pub d: f32,
-    pub q: f32,
+    pub d: Current,
+    pub q: Current,
 }
 pub struct PhaseCurrent {
-    pub a: f32,
-    pub b: f32,
-    pub c: f32,
+    pub a: Current,
+    pub b: Current,
+    pub c: Current,
 }
 // dq voltage structs
 pub struct DQVoltage {
-    pub d: f32,
-    pub q: f32,
+    pub d: Voltage,
+    pub q: Voltage,
 }
 // alpha beta current structure
 pub struct ABCurrent {
-    pub alpha: f32,
-    pub beta: f32,
+    pub alpha: Current,
+    pub beta: Current,
 }

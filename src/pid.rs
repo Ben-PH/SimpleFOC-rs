@@ -1,3 +1,5 @@
+use core::ops::Deref;
+
 use embedded_time::{clock::Error as ClockError, rate::Fraction, Clock, Instant};
 enum PIDError {
     Clock(ClockError),
@@ -9,10 +11,20 @@ impl From<ClockError> for PIDError {
     }
 }
 
+/// the p, i and d in pid
+struct PIDParam(f32);
+impl Deref for PIDParam {
+    type Target = f32;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 pub struct PID<C: Clock> {
-    pub p: f32,
-    pub i: f32,
-    pub d: f32,
+    pub p: PIDParam,
+    pub i: PIDParam,
+    pub d: PIDParam,
     pub output_ramp: Option<f32>,
     pub upper_limit: f32,
     lookback: PIDLookBack<C>,
@@ -21,7 +33,7 @@ pub struct PID<C: Clock> {
 struct PIDLookBack<C: Clock> {
     prev_error: f32,
     prev_output: f32,
-    prev_integral: f32,
+    prev_integral: PIDParam,
     prev_timestamp: Instant<C>,
 }
 
@@ -30,7 +42,7 @@ impl<C: Clock> PIDLookBack<C> {
         Self {
             prev_error: 0.0,
             prev_output: 0.0,
-            prev_integral: 0.0,
+            prev_integral: PIDParam(0.0),
             prev_timestamp: clock.try_now().unwrap(),
         }
     }
@@ -38,7 +50,7 @@ impl<C: Clock> PIDLookBack<C> {
     fn reset(&mut self) {
         self.prev_error = 0.0;
         self.prev_output = 0.0;
-        self.prev_integral = 0.0;
+        self.prev_integral = PIDParam(0.0);
     }
 }
 
@@ -55,9 +67,9 @@ impl Clock for ClockStub {
 
 impl PID<ClockStub> {
     pub fn init(
-        p: f32,
-        i: f32,
-        d: f32,
+        p: PIDParam,
+        i: PIDParam,
+        d: PIDParam,
         output_ramp: Option<f32>,
         upper_limit: f32,
         clock: &ClockStub,
@@ -77,15 +89,15 @@ impl PID<ClockStub> {
             .checked_duration_since(&self.lookback.prev_timestamp)
             .ok_or(PIDError::NegativeTimeDelta)?
             .integer();
-        let proportional = self.p * self.lookback.prev_error;
+        let proportional = self.p.deref() * self.lookback.prev_error;
 
         let integral = {
-            let unclamped = self.lookback.prev_integral
-                + self.i * (delta as f32) * 0.5 * (error + self.lookback.prev_error);
+            let unclamped = self.lookback.prev_integral.deref()
+                + self.i.deref() * (delta as f32) * 0.5 * (error + self.lookback.prev_error);
             unclamped.clamp(self.upper_limit, -self.upper_limit)
         };
 
-        let derivitive = self.d * (error - self.lookback.prev_error) / (delta as f32);
+        let derivitive = self.d.deref() * (error - self.lookback.prev_error) / (delta as f32);
 
         let mut output = {
             let unclamped = proportional + integral + derivitive;
@@ -100,7 +112,7 @@ impl PID<ClockStub> {
             }
         }
 
-        self.lookback.prev_integral = integral;
+        self.lookback.prev_integral = PIDParam(integral);
         self.lookback.prev_output = output;
         self.lookback.prev_error = error;
         self.lookback.prev_timestamp = now;

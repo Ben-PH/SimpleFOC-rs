@@ -1,3 +1,5 @@
+use embedded_time::duration::Microseconds;
+
 /// The describes the position of an inductor in the pitch of the permenant magnetic field, in
 /// units of tau.
 /// A linear motor with a 20mm pitch, 10mm from reference zero, the value would be 0.5
@@ -5,14 +7,12 @@
 /// the physical rotation of the motor for each phase-angle rotation.
 struct PhaseAngle(pub f32);
 struct Newtons(pub f32);
-struct MeterPerSecond(pub f32);
-struct Position(pub PhaseAngle);
 
 pub enum MotionCtrl {
     Force(Newtons),
-    Velocity(MeterPerSecond),
+    Velocity(PhaseAngle, Microseconds<u32>),
     Position(PhaseAngle),
-    VelocityOpenLoop(MeterPerSecond),
+    VelocityOpenLoop(PhaseAngle, Microseconds<u32>),
     PositionOpenLoop(PhaseAngle),
 }
 pub enum ForceControlType {
