@@ -5,8 +5,8 @@ use embedded_time::duration::Microseconds;
 /// A linear motor with a 20mm pitch, 10mm from reference zero, the value would be 0.5
 /// A rotary motor with a pitch of 36 degrees, and 9 inductors would have 12 degrees in
 /// the physical rotation of the motor for each phase-angle rotation.
-struct PhaseAngle(pub f32);
-struct Newtons(pub f32);
+pub struct PhaseAngle(pub f32);
+pub struct Newtons(pub f32);
 
 pub enum MotionCtrl {
     Force(Newtons),
@@ -39,7 +39,7 @@ pub enum FOCModulationType {
     Trapezoid150,
 }
 
-trait FOCMotor: Sized {
+pub trait FOCMotor: Sized {
     fn init() -> Result<Self, ()>;
     fn enable(&mut self);
     fn disable(&mut self);

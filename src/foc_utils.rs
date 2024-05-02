@@ -19,6 +19,11 @@ pub struct DQCurrent {
     pub d: Current,
     pub q: Current,
 }
+pub struct PhaseVoltages {
+    pub a: Voltage,
+    pub b: Voltage,
+    pub c: Voltage,
+}
 pub struct PhaseCurrent {
     pub a: Current,
     pub b: Current,
