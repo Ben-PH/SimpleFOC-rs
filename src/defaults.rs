@@ -12,7 +12,7 @@ const DEF_PID_VEL_I: f32 = 10.0;
 /// Default PID controller Derivitive value
 const DEF_PID_VEL_D: f32 = 0.0;
 /// Default PID controller voltage ramp value
-const DEF_PID_VEL_RAMP: f32 = 1000.0;
+const DEF_PID_VEL_RAMP: f32 = 1_000.0;
 /// Default PID controller voltage limit
 const DEF_PID_VEL_LIMIT: f32 = DEF_POWER_SUPPLY;
 
@@ -22,7 +22,7 @@ const DEF_PID_VEL_LIMIT: f32 = DEF_POWER_SUPPLY;
 const DEF_PID_CURR_P_16MHZ: i32 = 2;
 const DEF_PID_CURR_I_16MHZ: i32 = 100;
 const DEF_PID_CURR_D_16MHZ: f32 = 0.0;
-const DEF_PID_CURR_RAMP_16MHZ: f32 = 1000.0;
+const DEF_PID_CURR_RAMP_16MHZ: f32 = 10_00.0;
 const DEF_PID_CURR_LIMIT_16MHZ: f32 = DEF_POWER_SUPPLY;
 const DEF_CURR_FILTER_TF_16MHZ: f32 = 0.01;
 
