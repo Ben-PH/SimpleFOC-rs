@@ -1,4 +1,3 @@
-use core::marker::PhantomData;
 
 use embedded_hal::digital::InputPin;
 

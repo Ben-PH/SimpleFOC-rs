@@ -1,4 +1,3 @@
-use crate::pos_sensor::PosSensor;
 
 /// The describes the position of an inductor in the pitch of the permenant magnetic field, in
 /// units of tau.
