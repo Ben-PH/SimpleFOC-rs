@@ -1,4 +1,4 @@
-use crate::foc_utils::{DQCurrent, ABCurrent, PhaseCurrent};
+use crate::foc_utils::{ABCurrent, DQCurrent, PhaseCurrent};
 
 pub trait CurrentSensor: Sized {
     fn init() -> Result<Self, ()>;
@@ -12,5 +12,4 @@ pub trait CurrentSensor: Sized {
     fn get_DQ_currents(current: ABCurrent, phase_theta: f32) -> DQCurrent;
     fn enable(&mut self);
     fn disable(&mut self);
-
 }

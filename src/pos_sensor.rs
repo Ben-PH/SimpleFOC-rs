@@ -2,7 +2,6 @@ use core::marker::PhantomData;
 
 use embedded_hal::digital::InputPin;
 
-
 pub trait PosSensor: crate::types::MovementOrientation {
     fn position(&self) -> ();
     fn velocity(&self) -> ();
@@ -20,7 +19,7 @@ pub struct ABEncoder<A: InputPin, B: InputPin> {
     ppr: u16,
     // Index pin
     // todo: compile time configured presence of idx pin
-    
+
     // counter setup
     pulse_counter: u32,
     pulse_timestamp: u64,
@@ -30,7 +29,3 @@ pub struct ABEncoder<A: InputPin, B: InputPin> {
     pulse_per_second: u32,
     prev_ts_us: u64,
 }
-
-
-
-
