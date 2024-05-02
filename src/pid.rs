@@ -1,10 +1,13 @@
 use core::ops::Deref;
 
-use embedded_time::{clock::Error as ClockError, rate::Fraction, Clock, Instant};
+use embedded_time::{clock::Error as ClockError,  Clock, Instant};
+
+use crate::types::HalClock;
 enum PIDError {
     Clock(ClockError),
     NegativeTimeDelta,
 }
+
 impl From<ClockError> for PIDError {
     fn from(value: ClockError) -> Self {
         Self::Clock(value)
@@ -54,25 +57,14 @@ impl<C: Clock> PIDLookBack<C> {
     }
 }
 
-struct ClockStub;
-impl Clock for ClockStub {
-    type T = u32;
-
-    const SCALING_FACTOR: Fraction = Fraction::new(1, 1);
-
-    fn try_now(&self) -> Result<Instant<Self>, ClockError> {
-        todo!()
-    }
-}
-
-impl PID<ClockStub> {
+impl PID<HalClock> {
     pub fn init(
         p: PIDParam,
         i: PIDParam,
         d: PIDParam,
         output_ramp: Option<f32>,
         upper_limit: f32,
-        clock: &ClockStub,
+        clock: &HalClock,
     ) -> Self {
         Self {
             p,
@@ -83,7 +75,7 @@ impl PID<ClockStub> {
             lookback: PIDLookBack::new(clock),
         }
     }
-    pub fn run(&mut self, clock: &ClockStub, error: f32) -> Result<f32, PIDError> {
+    pub fn run(&mut self, clock: &HalClock, error: f32) -> Result<f32, PIDError> {
         let now = clock.try_now()?;
         let delta: u32 = now
             .checked_duration_since(&self.lookback.prev_timestamp)
