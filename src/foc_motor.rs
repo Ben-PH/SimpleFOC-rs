@@ -1,4 +1,3 @@
-
 /// The describes the position of an inductor in the pitch of the permenant magnetic field, in
 /// units of tau.
 /// A linear motor with a 20mm pitch, 10mm from reference zero, the value would be 0.5

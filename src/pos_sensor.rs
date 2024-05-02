@@ -1,4 +1,3 @@
-
 use embedded_hal::digital::InputPin;
 
 pub trait PosSensor: crate::types::MovementOrientation {
