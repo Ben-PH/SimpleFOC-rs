@@ -35,7 +35,7 @@ impl<C: Clock> PIDLookBack<C> {
         }
     }
 
-    fn reset(&self) {
+    fn reset(&mut self) {
         self.prev_error = 0.0;
         self.prev_output = 0.0;
         self.prev_integral = 0.0;
@@ -71,7 +71,7 @@ impl PID<ClockStub> {
             lookback: PIDLookBack::new(clock),
         }
     }
-    pub fn run(&self, clock: &ClockStub, error: f32) -> Result<f32, PIDError> {
+    pub fn run(&mut self, clock: &ClockStub, error: f32) -> Result<f32, PIDError> {
         let now = clock.try_now()?;
         let delta: u32 = now
             .checked_duration_since(&self.lookback.prev_timestamp)
@@ -79,25 +79,23 @@ impl PID<ClockStub> {
             .integer();
         let proportional = self.p * self.lookback.prev_error;
 
-        let mut integral = {
-            let mut stashed = self.lookback.prev_integral
+        let integral = {
+            let unclamped = self.lookback.prev_integral
                 + self.i * (delta as f32) * 0.5 * (error + self.lookback.prev_error);
-            stashed.clamp(self.upper_limit, -self.upper_limit);
-            stashed
+            unclamped.clamp(self.upper_limit, -self.upper_limit)
         };
 
         let derivitive = self.d * (error - self.lookback.prev_error) / (delta as f32);
 
         let mut output = {
-            let mut stashed = proportional + integral + derivitive;
-            stashed.clamp(self.upper_limit, -self.upper_limit);
-            stashed
+            let unclamped = proportional + integral + derivitive;
+            unclamped.clamp(self.upper_limit, -self.upper_limit)
         };
         if let Some(ramp) = self.output_ramp {
-            let mut op_rate = (output - self.lookback.prev_output) / (delta as f32);
-            if op_rate > ramp {
+            let output_rate = (output - self.lookback.prev_output) / (delta as f32);
+            if output_rate > ramp {
                 output = self.lookback.prev_output + ramp * (delta as f32);
-            } else if op_rate < -ramp {
+            } else if output_rate < -ramp {
                 output = self.lookback.prev_output - ramp * (delta as f32);
             }
         }
