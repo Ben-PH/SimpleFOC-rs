@@ -7,7 +7,7 @@ pub trait MovementOrientation {
 struct LinearMovement;
 impl MovementOrientation for LinearMovement {
     fn dirstr(dir: &Option<bool>) -> &'static str {
-        match dir{
+        match dir {
             Some(true) => "Forwards",
             Some(false) => "Backwards",
             None => "Unknown",
@@ -17,7 +17,7 @@ impl MovementOrientation for LinearMovement {
 struct RotaryMovement;
 impl MovementOrientation for RotaryMovement {
     fn dirstr(dir: &Option<bool>) -> &'static str {
-        match dir{
+        match dir {
             Some(true) => "Clockwise",
             Some(false) => "CounterClockwise",
             None => "Unknown",
@@ -30,15 +30,10 @@ struct Direction<T: MovementOrientation> {
     orientation: PhantomData<T>,
 }
 
-
 impl<T: MovementOrientation> core::fmt::Debug for Direction<T> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_tuple("Direction")
-         .field(&T::dirstr(&self.dir))
-         .finish()
+            .field(&T::dirstr(&self.dir))
+            .finish()
     }
 }
-
-
-
-
