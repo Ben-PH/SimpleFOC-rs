@@ -1,5 +1,6 @@
 #![no_std]
-mod pos_sensor;
-mod types;
-mod foc_motor;
+pub mod pos_sensor;
+pub mod types;
+pub mod foc_motor;
+pub mod bldc_driver;
 
