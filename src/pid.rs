@@ -1,8 +1,4 @@
-use embedded_time::{
-    clock::Error as ClockError,
-    duration::{Microseconds, Nanoseconds},
-    Clock, Instant, rate::Fraction,
-};
+use embedded_time::{clock::Error as ClockError, rate::Fraction, Clock, Instant};
 enum PIDError {
     Clock(ClockError),
     NegativeTimeDelta,
@@ -37,6 +33,12 @@ impl<C: Clock> PIDLookBack<C> {
             prev_integral: 0.0,
             prev_timestamp: clock.try_now().unwrap(),
         }
+    }
+
+    fn reset(&self) {
+        self.prev_error = 0.0;
+        self.prev_output = 0.0;
+        self.prev_integral = 0.0;
     }
 }
 
@@ -73,14 +75,40 @@ impl PID<ClockStub> {
         let now = clock.try_now()?;
         let delta: u32 = now
             .checked_duration_since(&self.lookback.prev_timestamp)
-            .ok_or(PIDError::NegativeTimeDelta)?.integer();
+            .ok_or(PIDError::NegativeTimeDelta)?
+            .integer();
         let proportional = self.p * self.lookback.prev_error;
 
-        let mut integral =
-            self.lookback.prev_integral + self.i * (delta as f32) * 0.5 * (error + self.lookback.prev_error);
+        let mut integral = {
+            let mut stashed = self.lookback.prev_integral
+                + self.i * (delta as f32) * 0.5 * (error + self.lookback.prev_error);
+            stashed.clamp(self.upper_limit, -self.upper_limit);
+            stashed
+        };
 
-        integral.clamp(self.upper_limit, -self.upper_limit);
+        let derivitive = self.d * (error - self.lookback.prev_error) / (delta as f32);
 
-        todo!()
+        let mut output = {
+            let mut stashed = proportional + integral + derivitive;
+            stashed.clamp(self.upper_limit, -self.upper_limit);
+            stashed
+        };
+        if let Some(ramp) = self.output_ramp {
+            let mut op_rate = (output - self.lookback.prev_output) / (delta as f32);
+            if op_rate > ramp {
+                output = self.lookback.prev_output + ramp * (delta as f32);
+            } else if op_rate < -ramp {
+                output = self.lookback.prev_output - ramp * (delta as f32);
+            }
+        }
+
+        self.lookback.prev_integral = integral;
+        self.lookback.prev_output = output;
+        self.lookback.prev_error = error;
+        self.lookback.prev_timestamp = now;
+        Ok(output)
+    }
+    pub fn reset(&mut self) {
+        self.lookback.reset();
     }
 }
