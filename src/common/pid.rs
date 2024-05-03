@@ -2,7 +2,7 @@ use core::ops::Deref;
 
 use embedded_time::{clock::Error as ClockError, Clock, Instant};
 
-use crate::utils::types::HalClock;
+use crate::common::types::HalClock;
 enum PIDError {
     Clock(ClockError),
     NegativeTimeDelta,

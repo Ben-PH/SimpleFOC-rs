@@ -1,4 +1,4 @@
-use crate::utils::helpers::{ABCurrent, DQCurrent, PhaseCurrent};
+use crate::common::helpers::{ABCurrent, DQCurrent, PhaseCurrent};
 
 pub trait CurrentSensor: Sized {
     fn init() -> Result<Self, ()>;

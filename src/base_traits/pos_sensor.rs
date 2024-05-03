@@ -1,4 +1,4 @@
-use crate::utils::types::MovementOrientation;
+use crate::common::types::MovementOrientation;
 
 pub trait PosSensor: MovementOrientation {
     fn position(&self) -> ();

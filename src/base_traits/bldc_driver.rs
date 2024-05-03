@@ -1,4 +1,4 @@
-use crate::utils::helpers::PhaseVoltages;
+use crate::common::helpers::PhaseVoltages;
 
 
 /// Describes what a given phase/coil/inductor is doing
