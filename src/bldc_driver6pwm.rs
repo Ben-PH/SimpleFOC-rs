@@ -1,8 +1,8 @@
 use embedded_hal::{digital::OutputPin, pwm::SetDutyCycle};
 
 use crate::{
-    bldc_driver::{BLDCDriver, PhaseState},
-    foc_utils::PhaseVoltages,
+    base_traits::bldc_driver::{BLDCDriver, PhaseState},
+    utils::helpers::PhaseVoltages,
 };
 
 pub struct BldcDriver6PWM<

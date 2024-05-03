@@ -3,7 +3,7 @@ use embedded_time::{
     Clock,
 };
 
-use crate::types::HalClock;
+use crate::utils::types::HalClock;
 type Timestamp = duration::Generic<u32>;
 
 struct LPFilter {

@@ -1,6 +1,4 @@
-use embedded_hal::digital::InputPin;
-
-use crate::types::MovementOrientation;
+use crate::utils::types::MovementOrientation;
 
 pub trait PosSensor: MovementOrientation {
     fn position(&self) -> ();

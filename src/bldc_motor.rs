@@ -1,4 +1,4 @@
-use crate::foc_motor::{FOCMotor, MotionCtrl, PhaseAngle};
+use crate::base_traits::foc_motor::{FOCMotor, MotionCtrl, PhaseAngle};
 
 pub struct BLDCMotor {
     pole_pairs: u8,

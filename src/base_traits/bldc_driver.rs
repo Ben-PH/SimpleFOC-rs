@@ -1,4 +1,5 @@
-use crate::foc_utils::PhaseVoltages;
+use crate::utils::helpers::PhaseVoltages;
+
 
 /// Describes what a given phase/coil/inductor is doing
 #[derive(Default, Copy, Clone)]
