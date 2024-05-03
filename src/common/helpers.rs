@@ -1,3 +1,5 @@
+use embedded_hal::pwm::SetDutyCycle;
+
 pub const SQRT3: f32 = 1.732_050_807_57;
 pub const SQRT2: f32 = 1.414_213_562_37;
 pub const PI: f32 = 3.141_592_653_59;
@@ -41,4 +43,9 @@ pub struct DQVoltage {
 pub struct ABCurrent {
     pub alpha: Current,
     pub beta: Current,
+}
+
+pub struct HBridgePins<Hi: SetDutyCycle, Lo: SetDutyCycle> {
+    pub hi: Hi,
+    pub lo: Lo,
 }

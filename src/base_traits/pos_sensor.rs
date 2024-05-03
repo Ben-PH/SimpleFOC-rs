@@ -1,8 +1,10 @@
 use crate::common::types::MovementOrientation;
 
 pub trait PosSensor: MovementOrientation {
-    fn position(&self) -> ();
-    fn velocity(&self) -> ();
+    // TODO: setup return type
+    fn position(&self);
+    // TODO: setup return type
+    fn velocity(&self);
     // fn acceleration(&self) -> ();
 
     // for now, assuming an auto-magic update using pulse-counting hardware

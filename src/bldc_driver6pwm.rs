@@ -2,7 +2,7 @@ use embedded_hal::{digital::OutputPin, pwm::SetDutyCycle};
 
 use crate::{
     base_traits::bldc_driver::{BLDCDriver, PhaseState},
-    common::helpers::PhaseVoltages,
+    common::helpers::{PhaseVoltages, HBridgePins},
 };
 
 pub struct BldcDriver6PWM<
@@ -14,12 +14,9 @@ pub struct BldcDriver6PWM<
     Cl: SetDutyCycle,
     En: OutputPin,
 > {
-    ah_pin: Ah,
-    al_pin: Al,
-    bh_pin: Bh,
-    bl_pin: Bl,
-    ch_pin: Ch,
-    cl_pin: Cl,
+    a_phase: HBridgePins<Ah, Al>,
+    b_phase: HBridgePins<Bh, Bl>,
+    c_phase: HBridgePins<Ch, Cl>,
     enable: Option<En>,
 
     phase_states: [PhaseState; 3],
@@ -86,23 +83,17 @@ impl<
     > BldcDriver6PWM<Ah, Al, Bh, Bl, Ch, Cl, En>
 {
     pub fn init(
-        ah_pin: Ah,
-        al_pin: Al,
-        bh_pin: Bh,
-        bl_pin: Bl,
-        ch_pin: Ch,
-        cl_pin: Cl,
+        a_phase: HBridgePins<Ah, Al>,
+        b_phase: HBridgePins<Bh, Bl>,
+        c_phase: HBridgePins<Ch, Cl>,
         enable: Option<En>,
     ) -> Result<Self, ()> {
         // TODO: account for voltage-limit config-vals
         // TODO: hardware-specific configuration
         Ok(Self {
-            ah_pin,
-            al_pin,
-            bh_pin,
-            bl_pin,
-            ch_pin,
-            cl_pin,
+            a_phase,
+            b_phase,
+            c_phase,
             enable,
 
             duty_cycles: (0.0, 0.0, 0.0),
