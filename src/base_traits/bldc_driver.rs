@@ -1,6 +1,5 @@
 use crate::common::helpers::PhaseVoltages;
 
-
 /// Describes what a given phase/coil/inductor is doing
 #[derive(Default, Copy, Clone)]
 pub struct PhaseState {
