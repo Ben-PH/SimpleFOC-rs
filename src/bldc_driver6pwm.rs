@@ -1,7 +1,8 @@
 use embedded_hal::{digital::OutputPin, pwm::SetDutyCycle};
 
 use crate::{
-    bldc_driver::{BLDCDriver, PhaseState}, foc_utils::PhaseVoltages,
+    bldc_driver::{BLDCDriver, PhaseState},
+    foc_utils::PhaseVoltages,
 };
 
 pub struct BldcDriver6PWM<
@@ -21,7 +22,7 @@ pub struct BldcDriver6PWM<
     cl_pin: Cl,
     enable: Option<En>,
 
-    phase_states: [PhaseState ; 3],
+    phase_states: [PhaseState; 3],
     phase_voltages: PhaseVoltages,
     duty_cycles: (f32, f32, f32),
 }
@@ -55,13 +56,16 @@ impl<
     fn set_pwm(&mut self, voltages: PhaseVoltages) {
         // TODO: clamp between 0 and voltage limit
 
-
-        self.phase_voltages = PhaseVoltages { a: todo!(), b: todo!(), c: todo!() };
+        self.phase_voltages = PhaseVoltages {
+            a: todo!(),
+            b: todo!(),
+            c: todo!(),
+        };
         // TODO: write in `_writeDutyCycle6PWM`
         todo!()
     }
 
-    fn set_phasestate(&mut self, state: [PhaseState ; 3]) {
+    fn set_phasestate(&mut self, state: [PhaseState; 3]) {
         self.phase_states = state;
     }
 }
@@ -101,20 +105,4 @@ impl<
             phase_voltages: Default::default(),
         })
     }
-
-    pub fn set_phase_states(states: (PhaseState, PhaseState, PhaseState)) {
-        todo!()
-    }
 }
-
-// #[derive(serde::Deserialize)]
-// struct Foo {
-//     bar: &'static str
-// }
-//
-// fn read_in(in_read: impl Read) -> Vec<Foo> {
-//     let mut res = vec![];
-//     while let Ok(next) = in_read.read(&mut some_buff) {
-//         res.push(serde_json::deserialise(next)?);
-//     }
-// }

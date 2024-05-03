@@ -12,13 +12,16 @@ pub const _1_SQRT3: f32 = 0.577_350_269_19;
 pub const SQRT3_2: f32 = 0.866_025_403_78;
 pub const _120_D2R: f32 = 2.094_395_102_39;
 
+#[derive(Default)]
 struct Current(f32);
+#[derive(Default)]
 struct Voltage(f32);
 
 pub struct DQCurrent {
     pub d: Current,
     pub q: Current,
 }
+#[derive(Default)]
 pub struct PhaseVoltages {
     pub a: Voltage,
     pub b: Voltage,

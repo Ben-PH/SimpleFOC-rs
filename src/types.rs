@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 
-use embedded_time::{Clock, rate::Fraction, Instant, clock::Error as ClockError};
+use embedded_time::{clock::Error as ClockError, rate::Fraction, Clock, Instant};
 
 pub trait MovementOrientation {
     fn dirstr(dir: &Option<bool>) -> &'static str;
@@ -40,7 +40,6 @@ impl<T: MovementOrientation> core::fmt::Debug for Direction<T> {
     }
 }
 
-
 pub struct HalClock;
 impl Clock for HalClock {
     type T = u32;
@@ -51,4 +50,3 @@ impl Clock for HalClock {
         todo!()
     }
 }
-
