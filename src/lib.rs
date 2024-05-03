@@ -1,5 +1,6 @@
 #![no_std]
 pub mod bldc_driver;
+pub mod bldc_driver6pwm;
 pub mod bldc_motor;
 pub mod current_sensor;
 pub mod foc_motor;

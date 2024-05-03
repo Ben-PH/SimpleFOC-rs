@@ -1,5 +1,7 @@
 /// Describes what a given phase/coil/inductor is doing
+#[derive(Default)]
 pub enum PhaseState {
+    #[default]
     Off,
     On,
     Hi,
