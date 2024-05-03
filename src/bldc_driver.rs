@@ -2,12 +2,9 @@ use crate::foc_utils::PhaseVoltages;
 
 /// Describes what a given phase/coil/inductor is doing
 #[derive(Default, Copy, Clone)]
-pub enum PhaseState {
-    #[default]
-    Off,
-    On,
-    Hi,
-    Lo,
+pub struct PhaseState {
+    pub hi_side: bool,
+    pub lo_side: bool,
 }
 
 pub trait BLDCDriver: Sized {

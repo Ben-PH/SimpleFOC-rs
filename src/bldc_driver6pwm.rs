@@ -41,12 +41,12 @@ impl<
         if let Some(mut enable_pin) = self.enable {
             enable_pin.set_high();
         }
-        self.set_phasestate([PhaseState::On; 3]);
+        self.set_phasestate([PhaseState{hi_side: true, lo_side: true}; 3]);
         self.set_pwm(Default::default());
     }
 
     fn disable(&mut self) {
-        self.set_phasestate([PhaseState::Off; 3]);
+        self.set_phasestate([PhaseState::default(); 3]);
         self.set_pwm(Default::default());
         if let Some(mut enable_pin) = self.enable {
             enable_pin.set_low();
