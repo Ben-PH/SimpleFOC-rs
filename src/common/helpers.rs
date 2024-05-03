@@ -44,8 +44,3 @@ pub struct ABCurrent {
     pub alpha: Current,
     pub beta: Current,
 }
-
-pub struct HBridgePins<Hi: SetDutyCycle, Lo: SetDutyCycle> {
-    pub hi: Hi,
-    pub lo: Lo,
-}

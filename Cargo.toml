@@ -9,6 +9,7 @@ license = "MIT OR Apache-2.0"
 embedded-hal = "1.0.0"
 embedded-time = "0.12.1"
 log = { version = "0.4.20" }
+typenum = { version = "1.17.0", features = ["no_std"] }
 
 [profile.dev]
 # Rust debug is too slow. 
