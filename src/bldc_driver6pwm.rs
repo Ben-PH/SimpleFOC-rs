@@ -2,7 +2,7 @@ use embedded_hal::{digital::OutputPin, pwm::SetDutyCycle};
 
 use crate::{
     base_traits::bldc_driver::{BLDCDriver, PhaseState},
-    common::helpers::{PhaseVoltages, HBridgePins},
+    common::helpers::{HBridgePins, PhaseVoltages},
 };
 
 pub struct BldcDriver6PWM<
