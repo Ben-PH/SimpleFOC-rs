@@ -1,5 +1,6 @@
 use embedded_hal::pwm::SetDutyCycle;
 use embedded_time::rate::Rate;
+use typenum::{IsLessOrEqual, Unsigned};
 
 use crate::common::helpers::{DutyCycle, PhaseVoltages, PinTriplet};
 
@@ -13,21 +14,33 @@ pub struct PhaseState {
 // For hardware-specific cfg initialisation
 pub trait ConfigPWM {
     type Params;
-    fn config<A, B, C, R: Rate>(freq: R, pins: PinTriplet<A, B, C>) -> Result<Self::Params, PinTriplet<A, B, C>>;
+    fn config<A, B, C, R: Rate>(
+        freq: R,
+        pins: PinTriplet<A, B, C>,
+    ) -> Result<Self::Params, PinTriplet<A, B, C>>;
 }
 
 // for bldc: 3 and 6 pins. For now, assuming just 3
-pub trait BLDCDriver: Sized + WriteDutyCycles + ConfigPWM<Params = Self> {
+#[allow(non_camel_case_types)]
+pub trait BLDCDriver<
+    mVPsup: Unsigned,
+    mVLim: Unsigned + IsLessOrEqual<mVPsup, Output = typenum::True>,
+>: Sized + WriteDutyCycles + ConfigPWM<Params = Self>
+{
     // TODO: The constraints that I need to be able to encapsulate here:
     //  - the pins can be turned into pwm pins
     //  - the pins are to be moved into the returned self
     //  - there must be an encapsulation of hw-specifics. This is to be returned by
     //  `ConfigPWM::config`
     //   - in sfoc esp32, this is a pointer to `SP32MCPWMDriversParams`
-    fn init_bldc_driver<A, B, C, R: Rate>(freq: R, pins: PinTriplet<A, B, C>) -> Result<Self, PinTriplet<A, B, C>> {
+    fn init_bldc_driver<A, B, C, R: Rate>(
+        freq: R,
+        pins: PinTriplet<A, B, C>,
+    ) -> Result<Self, PinTriplet<A, B, C>> {
         // sfoc sets the pins to output, which is what SetDutyCycle constraint enforces
         // then does some things if the enable stuff is done
-        // then sanity checks the v-limit config
+        // then sanity checks the v-limit config. Here, we do that at the type-level
+        // 6pwm sets all phase-states to off
         // then defers to the hw-specific api to configure
         Self::config(freq, pins)
     }
@@ -65,7 +78,7 @@ pub trait BLDCDriver: Sized + WriteDutyCycles + ConfigPWM<Params = Self> {
     // }
 }
 
-// TODO: Consider implementing "read current duty cycle" 
+// TODO: Consider implementing "read current duty cycle"
 pub trait WriteDutyCycles {
     type SetError;
     fn write_pwm_duty(
@@ -76,10 +89,7 @@ pub trait WriteDutyCycles {
     ) -> Result<(), Self::SetError>;
 }
 
-
-impl<A: SetDutyCycle, B: SetDutyCycle, C: SetDutyCycle>
-    WriteDutyCycles for PinTriplet<A, B, C>
-{
+impl<A: SetDutyCycle, B: SetDutyCycle, C: SetDutyCycle> WriteDutyCycles for PinTriplet<A, B, C> {
     type SetError = ();
     fn write_pwm_duty(
         &mut self,
@@ -88,11 +98,14 @@ impl<A: SetDutyCycle, B: SetDutyCycle, C: SetDutyCycle>
         duty_c: DutyCycle,
     ) -> Result<(), Self::SetError> {
         self.pin_a
-            .set_duty_cycle_fraction(duty_a.numer(), duty_a.denom().into()).map_err(|_|())?;
+            .set_duty_cycle_fraction(duty_a.numer(), duty_a.denom().into())
+            .map_err(|_| ())?;
         self.pin_b
-            .set_duty_cycle_fraction(duty_b.numer(), duty_b.denom().into()).map_err(|_|())?;
+            .set_duty_cycle_fraction(duty_b.numer(), duty_b.denom().into())
+            .map_err(|_| ())?;
         self.pin_c
-            .set_duty_cycle_fraction(duty_c.numer(), duty_c.denom().into()).map_err(|_|())?;
+            .set_duty_cycle_fraction(duty_c.numer(), duty_c.denom().into())
+            .map_err(|_| ())?;
         Ok(())
     }
 }
