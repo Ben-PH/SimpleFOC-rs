@@ -1,5 +1,5 @@
 [package]
-name = "rrir-foc"
+name = "sfoc-rs"
 version = "0.1.0"
 authors = ["Ben PHL <benphawke@gmail.com>"]
 edition = "2021"
