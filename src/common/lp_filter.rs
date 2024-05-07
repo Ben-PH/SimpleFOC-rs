@@ -1,5 +1,6 @@
 use embedded_time::{
-    duration::{self, Microseconds}, Clock,
+    duration::{self, Microseconds},
+    Clock,
 };
 
 use super::types::HalClock;
@@ -17,10 +18,7 @@ impl LPFilter {
     pub fn new(time_constant: Microseconds<u32>, clock: &HalClock) -> Self {
         Self {
             time_constant,
-            timestamp_prev: clock
-                .try_now()
-                .unwrap()
-                .duration_since_epoch(),
+            timestamp_prev: clock.try_now().unwrap().duration_since_epoch(),
             y_prev: 0.0,
         }
     }
