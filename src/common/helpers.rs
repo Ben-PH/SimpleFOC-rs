@@ -1,4 +1,7 @@
+use core::{marker::PhantomData, num::NonZeroU16};
+
 use embedded_hal::pwm::SetDutyCycle;
+use typenum::{IsGreater, IsLessOrEqual, Unsigned, U0};
 
 pub const SQRT3: f32 = 1.732_050_807_57;
 pub const SQRT2: f32 = 1.414_213_562_37;
@@ -15,9 +18,29 @@ pub const SQRT3_2: f32 = 0.866_025_403_78;
 pub const _120_D2R: f32 = 2.094_395_102_39;
 
 #[derive(Default)]
-struct Current(f32);
+pub struct Current(pub f32);
 #[derive(Default)]
-struct Voltage(f32);
+pub struct Voltage(pub f32);
+pub struct DutyCycle {
+    numer: u16,
+    denom: NonZeroU16,
+}
+
+impl DutyCycle {
+    pub const fn try_new(numer: u16, denom: NonZeroU16) -> Result<Self, ()> {
+        if numer > denom.get() {
+            Err(())
+        } else {
+            Ok(Self { numer, denom })
+        }
+    }
+    pub fn numer(&self) -> u16 {
+        self.numer
+    }
+    pub fn denom(&self) -> NonZeroU16 {
+        self.denom
+    }
+}
 
 pub struct DQCurrent {
     pub d: Current,
