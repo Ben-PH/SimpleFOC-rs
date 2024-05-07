@@ -1,19 +1,20 @@
 use embedded_time::{
-    duration::{self, Microseconds},
-    Clock,
+    duration::{self, Microseconds}, Clock,
 };
 
-use crate::utils::types::HalClock;
+use super::types::HalClock;
+
 type Timestamp = duration::Generic<u32>;
 
-struct LPFilter {
+#[allow(dead_code)]
+pub struct LPFilter {
     pub time_constant: Microseconds<u32>,
     timestamp_prev: Timestamp,
     y_prev: f32,
 }
 
 impl LPFilter {
-    fn new(time_constant: Microseconds<u32>, clock: HalClock) -> Self {
+    pub fn new(time_constant: Microseconds<u32>, clock: HalClock) -> Self {
         Self {
             time_constant,
             timestamp_prev: clock
@@ -25,7 +26,7 @@ impl LPFilter {
             y_prev: 0.0,
         }
     }
-    fn run(&mut self, clock: &HalClock) -> f32 {
+    pub fn run(&mut self, _clock: &HalClock) -> f32 {
         todo!()
     }
 }

@@ -1,7 +1,4 @@
-use core::{marker::PhantomData, num::NonZeroU16};
-
-use embedded_hal::pwm::SetDutyCycle;
-use typenum::{IsGreater, IsLessOrEqual, Unsigned, U0};
+use core::num::NonZeroU16;
 
 pub const SQRT3: f32 = 1.732_050_807_57;
 pub const SQRT2: f32 = 1.414_213_562_37;

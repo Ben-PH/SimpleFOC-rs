@@ -3,7 +3,7 @@ use core::ops::Deref;
 use embedded_time::{clock::Error as ClockError, Clock, Instant};
 
 use crate::common::types::HalClock;
-enum PIDError {
+pub enum PIDError {
     Clock(ClockError),
     NegativeTimeDelta,
 }
@@ -15,7 +15,7 @@ impl From<ClockError> for PIDError {
 }
 
 /// the p, i and d in pid
-struct PIDParam(f32);
+pub struct PIDParam(f32);
 impl Deref for PIDParam {
     type Target = f32;
 

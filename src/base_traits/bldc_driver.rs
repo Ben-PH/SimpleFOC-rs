@@ -27,16 +27,17 @@ pub trait BLDCDriver: Sized + WriteDutyCycles {
     //         DutyCycle::try_new(0, 1.into().unwrap()),
     //     )
     // }
+    #[allow(unreachable_code)]
     fn set_pwm(
         &mut self,
-        voltages: PhaseVoltages,
+        _voltages: PhaseVoltages,
     ) -> Result<(), <Self as WriteDutyCycles>::SetError> {
         todo!("constrain the phase voltages to be between 0 and 100%");
         todo!("apply the duty cycles as a coeficient to the phase voltages");
-        let (a, b, c): (DutyCycle, DutyCycle, DutyCycle) =
+        let (_a, _b, _c): (DutyCycle, DutyCycle, DutyCycle) =
             todo!("constrain the duty cycles to between 0 and 100%");
 
-        <Self as WriteDutyCycles>::write_pwm_duty(self, a, b, c)
+        <Self as WriteDutyCycles>::write_pwm_duty(self, _a, _b, _c)
     }
 
     // In 3PWM, it's a bit weird. in PWM6, it's a simple `self.phasestate = state;`

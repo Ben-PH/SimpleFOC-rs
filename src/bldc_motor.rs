@@ -1,5 +1,6 @@
 use crate::base_traits::foc_motor::{FOCMotor, MotionCtrl, PhaseAngle};
 
+#[allow(dead_code)]
 pub struct BLDCMotor {
     pole_pairs: u8,
     phase_resistance: f32,
@@ -16,13 +17,13 @@ pub struct BLDCMotor {
 }
 
 impl BLDCMotor {
-    fn align_position_sensor() {
+    pub fn align_position_sensor() {
         todo!()
     }
-    fn align_current_sense() {
+    pub fn align_current_sense() {
         todo!()
     }
-    fn find_zero_reference() {
+    pub fn find_zero_reference() {
         todo!()
     }
 }
@@ -48,11 +49,11 @@ impl FOCMotor for BLDCMotor {
         todo!()
     }
 
-    fn move_command(motion: MotionCtrl) {
+    fn move_command(_motion: MotionCtrl) {
         todo!()
     }
 
-    fn set_phase_voltage(u_q: f32, u_d: f32, phase_angle: PhaseAngle) {
+    fn set_phase_voltage(_u_q: f32, _u_d: f32, _phase_angle: PhaseAngle) {
         todo!()
     }
 }
