@@ -33,6 +33,13 @@ impl DutyCycle {
     }
 }
 
+/// A convenience wrapper for a collection of pins. E.g.
+pub struct PinTriplet<A, B, C> {
+    pub pin_a: A,
+    pub pin_b: B,
+    pub pin_c: C,
+}
+
 pub struct DQCurrent {
     pub d: Current,
     pub q: Current,
