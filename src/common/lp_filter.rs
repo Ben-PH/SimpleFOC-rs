@@ -14,15 +14,13 @@ pub struct LPFilter {
 }
 
 impl LPFilter {
-    pub fn new(time_constant: Microseconds<u32>, clock: HalClock) -> Self {
+    pub fn new(time_constant: Microseconds<u32>, clock: &HalClock) -> Self {
         Self {
             time_constant,
             timestamp_prev: clock
                 .try_now()
                 .unwrap()
-                .duration_since_epoch()
-                .try_into()
-                .unwrap(),
+                .duration_since_epoch(),
             y_prev: 0.0,
         }
     }
