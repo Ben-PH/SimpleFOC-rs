@@ -9,6 +9,7 @@ license = "MIT OR Apache-2.0"
 embedded-hal = "1.0.0"
 embedded-time = "0.12.1"
 log = { version = "0.4.20" }
+micromath = "2.1.0"
 typenum = "1.17.0"
 
 [profile.dev]
