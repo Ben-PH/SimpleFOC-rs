@@ -1,3 +1,5 @@
+use embedded_hal::digital::InputPin;
+
 pub trait PosSensor {
     /// Degrees, thetea, etc for rotary. mm, fractional, etc. for linear.
     /// Some consideration is being made that this is actually the output of the encoder, such
@@ -29,4 +31,12 @@ impl<PosUnit: Copy, TimeUnit: Copy> PosSensor for VelocityBook<PosUnit, TimeUnit
     fn velocity(&self) -> (Self::PosUnit, Self::TimeUnit) {
         todo!("there seems to be some delicacy to this. need to do this with care");
     }
+}
+
+pub trait ABEncoder<InA: InputPin, InB: InputPin> {
+    /// e.g. for esp32, this will be an i32
+    type Output;
+    type InitData;
+    fn init(init_data: Self::InitData) -> Self;
+    fn read(&self) -> Self::Output;
 }
