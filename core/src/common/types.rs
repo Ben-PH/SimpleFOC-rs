@@ -1,4 +1,4 @@
-use core::marker::PhantomData;
+use core::{marker::PhantomData, num::NonZeroU64};
 
 pub trait MovementOrientation {
     fn dirstr(dir: &Option<bool>) -> &'static str;
@@ -35,5 +35,23 @@ impl<T: MovementOrientation> core::fmt::Debug for Direction<T> {
         f.debug_tuple("Direction")
             .field(&T::dirstr(&self.dir))
             .finish()
+    }
+}
+
+pub struct Velocity<D, T: From<NonZeroU64>> {
+    pub displacement: D,
+    pub time: T,
+}
+
+impl<D, T> Default for Velocity<D, T>
+where
+    D: Default,
+    T: From<NonZeroU64> + Default,
+{
+    fn default() -> Self {
+        Self {
+            displacement: Default::default(),
+            time: NonZeroU64::new(1).unwrap().into(),
+        }
     }
 }
