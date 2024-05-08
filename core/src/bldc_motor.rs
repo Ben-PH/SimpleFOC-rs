@@ -29,7 +29,7 @@ impl BLDCMotor {
 }
 
 impl FOCMotor for BLDCMotor {
-    fn init() -> Result<Self, ()> {
+    fn init_foc_motor() -> Result<Self, ()> {
         todo!()
     }
 

@@ -40,7 +40,7 @@ pub enum FOCModulationType {
 }
 
 pub trait FOCMotor: Sized {
-    fn init() -> Result<Self, ()>;
+    fn init_foc_motor() -> Result<Self, ()>;
     fn enable(&mut self);
     fn disable(&mut self);
     // fn link_sensor/current_sensor(....
