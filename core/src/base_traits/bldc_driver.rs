@@ -1,6 +1,5 @@
 use embedded_hal::pwm::SetDutyCycle;
 use embedded_time::rate::Rate;
-use typenum::{IsLessOrEqual, Unsigned};
 
 use crate::common::helpers::{DutyCycle, PhaseVoltages, PinTriplet};
 
@@ -22,10 +21,12 @@ pub trait ConfigPWM {
 
 // for bldc: 3 and 6 pins. For now, assuming just 3
 #[allow(non_camel_case_types)]
-pub trait BLDCDriver<
-    mVPsup: Unsigned,
-    mVLim: Unsigned + IsLessOrEqual<mVPsup, Output = typenum::True>,
->: Sized + WriteDutyCycles + ConfigPWM<Params = Self>
+pub trait BLDCDriver
+// <
+//     mVPsup: Unsigned,
+//     mVLim: Unsigned + IsLessOrEqual<mVPsup, Output = typenum::True>,
+// >
+: Sized + WriteDutyCycles + ConfigPWM<Params = Self>
 {
     // TODO: The constraints that I need to be able to encapsulate here:
     //  - the pins can be turned into pwm pins
