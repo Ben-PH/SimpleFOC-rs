@@ -319,6 +319,7 @@ dependencies = [
 name = "esp32-sfoc"
 version = "0.1.0"
 dependencies = [
+ "embedded-hal",
  "esp-backtrace",
  "esp-hal",
  "esp-println",

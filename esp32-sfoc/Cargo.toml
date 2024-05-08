@@ -6,6 +6,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+embedded-hal = "1.0.0"
 esp-backtrace = { version = "0.11.0", features = [
     "esp32",
     "exception-handler",
