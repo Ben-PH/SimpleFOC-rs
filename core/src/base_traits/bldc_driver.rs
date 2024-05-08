@@ -1,5 +1,4 @@
 use embedded_hal::pwm::SetDutyCycle;
-use embedded_time::rate::Rate;
 
 use crate::common::helpers::{DutyCycle, PhaseVoltages, PinTriplet};
 
@@ -13,8 +12,7 @@ pub struct PhaseState {
 // For hardware-specific cfg initialisation
 pub trait ConfigPWM {
     type Params;
-    fn config<A, B, C, R: Rate>(
-        freq: R,
+    fn config<A, B, C>(
         pins: PinTriplet<A, B, C>,
     ) -> Result<Self::Params, PinTriplet<A, B, C>>;
 }
@@ -26,25 +24,17 @@ pub trait BLDCDriver
 //     mVPsup: Unsigned,
 //     mVLim: Unsigned + IsLessOrEqual<mVPsup, Output = typenum::True>,
 // >
-: Sized + WriteDutyCycles + ConfigPWM<Params = Self>
+: Sized + WriteDutyCycles + ConfigPWM
 {
     // TODO: The constraints that I need to be able to encapsulate here:
-    //  - the pins can be turned into pwm pins
+    //  - the pins can be turned into pwm pins X SetDutyCycle implies already have a frequency
     //  - the pins are to be moved into the returned self
     //  - there must be an encapsulation of hw-specifics. This is to be returned by
     //  `ConfigPWM::config`
     //   - in sfoc esp32, this is a pointer to `SP32MCPWMDriversParams`
-    fn init_bldc_driver<A, B, C, R: Rate>(
-        freq: R,
+    fn init_bldc_driver<A, B, C>(
         pins: PinTriplet<A, B, C>,
-    ) -> Result<Self, PinTriplet<A, B, C>> {
-        // sfoc sets the pins to output, which is what SetDutyCycle constraint enforces
-        // then does some things if the enable stuff is done
-        // then sanity checks the v-limit config. Here, we do that at the type-level
-        // 6pwm sets all phase-states to off
-        // then defers to the hw-specific api to configure
-        Self::config(freq, pins)
-    }
+    ) -> Result<Self, PinTriplet<A, B, C>>;
 
     #[allow(unreachable_code)]
     fn set_pwm(

@@ -320,11 +320,14 @@ name = "esp32-sfoc"
 version = "0.1.0"
 dependencies = [
  "embedded-hal",
+ "embedded-time",
  "esp-backtrace",
  "esp-hal",
  "esp-println",
+ "fugit",
  "log",
  "sfoc-rs",
+ "typenum",
 ]
 
 [[package]]
@@ -665,6 +668,7 @@ version = "0.1.0"
 dependencies = [
  "embedded-hal",
  "embedded-time",
+ "fugit",
  "log",
  "micromath",
  "typenum",
