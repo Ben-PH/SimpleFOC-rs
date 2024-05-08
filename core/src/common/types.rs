@@ -1,4 +1,4 @@
-use core::{marker::PhantomData, num::NonZeroU64};
+use core::marker::PhantomData;
 
 pub trait MovementOrientation {
     fn dirstr(dir: &Option<bool>) -> &'static str;
