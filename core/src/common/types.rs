@@ -38,20 +38,29 @@ impl<T: MovementOrientation> core::fmt::Debug for Direction<T> {
     }
 }
 
-pub struct Velocity<D, T: From<NonZeroU64>> {
+pub struct Velocity<D, T> {
     pub displacement: D,
     pub time: T,
 }
 
-impl<D, T> Default for Velocity<D, T>
-where
-    D: Default,
-    T: From<NonZeroU64> + Default,
-{
-    fn default() -> Self {
-        Self {
-            displacement: Default::default(),
-            time: NonZeroU64::new(1).unwrap().into(),
-        }
-    }
-}
+// So velocity must have a non-zero denominator. Because this is a run-time thing, the use of
+// typnum for the denominator would explode the binary size
+//
+// The default is looking like this Because
+//  a) at time of writing, this was a "get it done" solution
+//  b) can't think of a nicer way to ensure that the denominotor is constrained to have a suitable
+//  deafult impl
+// impl<D, T, E> Default for Velocity<D, T>
+// where
+//     D: Default,
+//     E: core::fmt::Debug,
+//     T: TryFrom<NonZeroU64, Error = E>,
+// {
+//     fn default() -> Self {
+//         Self {
+//             displacement: Default::default(),
+//             // this should be trivial for the compiler to optimise into a single op
+//             time: T::try_from(NonZeroU64::new(1).unwrap()).unwrap(),
+//         }
+//     }
+// }
