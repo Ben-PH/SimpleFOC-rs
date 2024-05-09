@@ -20,25 +20,17 @@ use sfoc_rs::common::helpers::PinTriplet;
 use sfoc_rs::common::types::Velocity;
 use typenum::{IsEqual, Unsigned};
 
-struct Timer0<
-    TG: TimerGroupInstance,
-> {
+struct Timer0<TG: TimerGroupInstance> {
     timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>,
 }
 
-impl<TG: TimerGroupInstance>
-    Timer0<TG>
-{
+impl<TG: TimerGroupInstance> Timer0<TG> {
     fn init(timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>) -> Self {
         timer.enable_peripheral();
-        Self {
-            timer,
-        }
+        Self { timer }
     }
 }
-impl<TG: TimerGroupInstance>
-    embedded_time::Clock for Timer0<TG>
-{
+impl<TG: TimerGroupInstance> embedded_time::Clock for Timer0<TG> {
     type T = u64;
 
     const SCALING_FACTOR: Fraction = <Fraction>::new(1, 80_000_000);
@@ -71,8 +63,6 @@ fn main() -> ! {
         pin_b: phase_b,
         pin_c: phase_c,
     };
-
-
 
     let target_velocity = Velocity {
         displacement: 0u32,
