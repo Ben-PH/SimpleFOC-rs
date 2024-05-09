@@ -1,7 +1,7 @@
-use crate::base_traits::foc_motor::{FOCMotor, MotionCtrl, PhaseAngle, VelocityPID, DCurrentPID, QCurrentPID};
+use crate::base_traits::{foc_motor::{FOCMotor, MotionCtrl, PhaseAngle, VelocityPID, DCurrentPID, QCurrentPID}, bldc_driver::BLDCDriver};
 
 #[allow(dead_code)]
-pub struct BLDCMotor {
+pub struct BLDCMotor<D> {
     pole_pairs: u8,
     phase_resistance: f32,
     /// phases/second/volt
@@ -17,9 +17,10 @@ pub struct BLDCMotor {
     velocity_pid: VelocityPID,
     current_pid_q: QCurrentPID,
     current_pid_d: DCurrentPID,
+    driver: D,
 }
 
-impl BLDCMotor {
+impl<D> BLDCMotor<D> {
     pub fn align_position_sensor() {
         todo!()
     }
@@ -31,7 +32,8 @@ impl BLDCMotor {
     }
 }
 
-impl FOCMotor for BLDCMotor {
+impl<D> FOCMotor for BLDCMotor<D> {
+
     fn init_foc_motor() -> Result<Self, ()> {
         todo!()
     }
