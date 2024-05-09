@@ -4,7 +4,7 @@ use embedded_time::{duration::Microseconds, Clock, Instant};
 pub trait PosSensor<C: Clock> {
     // TODO: encapsulate the notion of position as a type (mm, radians, encoder increments, etc.
     /// For determining velocity. use seconds, clock oscilations, etc at your leasure
-    fn position(&self, clock: &C) -> u32;
+    fn position(&mut self, clock: &C) -> u32;
     fn velocity(&self) -> (u32, u32);
     // fn acceleration(&self) -> ();
 
@@ -17,10 +17,10 @@ struct VelocityBook<C: Clock> {
     _pos_prev_ts: Instant<C>,
 }
 
-impl<C: Clock> PosSensor<C> for VelocityBook {
+impl<C: Clock> PosSensor<C> for VelocityBook<C> {
     // get a timestamp/position pair
     // this is typically taken each time in the foc hot-loop
-    fn position(&self, clock: &C) -> u32 {
+    fn position(&mut self, clock: &C) -> u32 {
         self._pos_prev_ts = clock.try_now().unwrap();
         // self.pos_prev = $read_position;
 

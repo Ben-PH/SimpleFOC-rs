@@ -9,7 +9,7 @@ pub struct PhaseState {
     pub lo_side: bool,
 }
 
-pub trait BLDCDriver {
+pub trait BLDCDriver: Sized {
     fn init_bldc_driver() -> Result<Self, ()>;
     fn enable(&mut self);
     fn disable(&mut self);

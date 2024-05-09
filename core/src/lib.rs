@@ -6,3 +6,5 @@ pub mod bldc_motor;
 pub mod commands;
 pub mod common;
 pub mod hw_drivers;
+
+pub use pid;

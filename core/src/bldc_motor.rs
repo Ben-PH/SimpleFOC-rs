@@ -1,6 +1,8 @@
-use crate::base_traits::{foc_motor::{FOCMotor, MotionCtrl, PhaseAngle, VelocityPID, DCurrentPID, QCurrentPID}, bldc_driver::BLDCDriver};
+use crate::{base_traits::{foc_control::{FOCMotor, MotionCtrl, PhaseAngle}, bldc_driver::BLDCDriver}, common::types::{VelocityPID, QCurrentPID, DCurrentPID}};
+
 
 #[allow(dead_code)]
+// D: implements the bldc driver
 pub struct BLDCMotor<D> {
     pole_pairs: u8,
     phase_resistance: f32,
@@ -32,9 +34,10 @@ impl<D> BLDCMotor<D> {
     }
 }
 
-impl<D> FOCMotor for BLDCMotor<D> {
+impl<D: BLDCDriver> FOCMotor for BLDCMotor<D> {
 
     fn init_foc_motor() -> Result<Self, ()> {
+        let driver: D = BLDCDriver::init_bldc_driver()?;
         todo!()
     }
 
