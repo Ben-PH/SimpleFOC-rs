@@ -11,4 +11,5 @@ embedded-time = "0.12.1"
 fugit = "0.3.7"
 log = { version = "0.4.20" }
 micromath = "2.1.0"
+pid = "4.0.0"
 typenum = "1.17.0"

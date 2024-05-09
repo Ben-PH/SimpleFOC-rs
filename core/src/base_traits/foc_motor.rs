@@ -1,4 +1,5 @@
 use embedded_time::duration::Microseconds;
+use pid::Pid;
 
 /// The describes the position of an inductor in the pitch of the permenant magnetic field, in
 /// units of tau.
@@ -49,3 +50,8 @@ pub trait FOCMotor: Sized {
     fn move_command(motion: MotionCtrl);
     fn set_phase_voltage(u_q: f32, u_d: f32, phase_angle: PhaseAngle);
 }
+
+pub struct QCurrentPID(pub Pid<f32>);
+pub struct DCurrentPID(pub Pid<f32>);
+pub struct VelocityPID(pub Pid<f32>);
+pub struct PositionPID(pub Pid<f32>);

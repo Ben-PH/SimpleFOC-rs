@@ -1,4 +1,4 @@
-use crate::base_traits::foc_motor::{FOCMotor, MotionCtrl, PhaseAngle};
+use crate::base_traits::foc_motor::{FOCMotor, MotionCtrl, PhaseAngle, VelocityPID, DCurrentPID, QCurrentPID};
 
 #[allow(dead_code)]
 pub struct BLDCMotor {
@@ -14,6 +14,9 @@ pub struct BLDCMotor {
     /// rpm needed to traverse `psv` pitches in a minute), as well as linear motor characteristics
     psv: f32,
     phase_inductance: f32,
+    velocity_pid: VelocityPID,
+    current_pid_q: QCurrentPID,
+    current_pid_d: DCurrentPID,
 }
 
 impl BLDCMotor {
