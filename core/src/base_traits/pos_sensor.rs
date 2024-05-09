@@ -1,5 +1,5 @@
 use embedded_hal::digital::InputPin;
-use embedded_time::{duration::Microseconds, Clock, Instant};
+use embedded_time::{Clock, Instant};
 
 pub trait PosSensor<C: Clock> {
     // TODO: encapsulate the notion of position as a type (mm, radians, encoder increments, etc.

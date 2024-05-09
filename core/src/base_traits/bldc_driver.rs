@@ -1,6 +1,5 @@
-use embedded_hal::pwm::SetDutyCycle;
 
-use crate::common::helpers::{DutyCycle, PhaseVoltages, PinTriplet};
+use crate::common::helpers::DutyCycle;
 
 /// Describes what a given phase/coil/inductor is doing
 #[derive(Default, Copy, Clone)]
@@ -13,8 +12,22 @@ pub trait BLDCDriver: Sized {
     fn init_bldc_driver() -> Result<Self, ()>;
     fn enable(&mut self);
     fn disable(&mut self);
-    fn set_pwms(&mut self, dc_a: DutyCycle,dc_b: DutyCycle,dc_c: DutyCycle);
+    fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle);
     fn set_phase_state(&mut self, ps_a: PhaseState, ps_b: PhaseState, ps_c: PhaseState);
+}
+pub struct UnimplBLDCDriver;
+
+#[allow(unused_variables)]
+impl BLDCDriver for UnimplBLDCDriver {
+    fn init_bldc_driver() -> Result<Self, ()> { todo!() }
+    fn enable(&mut self) { todo!() }
+    fn disable(&mut self) { todo!() }
+    fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle) {
+        todo!()
+    }
+    fn set_phase_state(&mut self, ps_a: PhaseState, ps_b: PhaseState, ps_c: PhaseState) {
+        todo!()
+    }
 }
 
 // // For hardware-specific cfg initialisation
@@ -22,7 +35,7 @@ pub trait BLDCDriver: Sized {
 //     type Params;
 //     fn config<A, B, C>(pins: PinTriplet<A, B, C>) -> Result<Self::Params, PinTriplet<A, B, C>>;
 // }
-// 
+//
 // // for bldc: 3 and 6 pins. For now, assuming just 3
 // // TODO: Add voltage constraints
 // pub trait BLDCDriver: Sized + WriteDutyCycles + ConfigPWM {
@@ -33,7 +46,7 @@ pub trait BLDCDriver: Sized {
 //     //  `ConfigPWM::config`
 //     //   - in sfoc esp32, this is a pointer to `SP32MCPWMDriversParams`
 //     fn init_bldc_driver<A, B, C>(pins: PinTriplet<A, B, C>) -> Result<Self, PinTriplet<A, B, C>>;
-// 
+//
 //     #[allow(unreachable_code)]
 //     fn set_pwm(
 //         &mut self,
@@ -43,10 +56,10 @@ pub trait BLDCDriver: Sized {
 //         todo!("apply the duty cycles as a coeficient to the phase voltages");
 //         let (a, b, c): (DutyCycle, DutyCycle, DutyCycle) =
 //             todo!("constrain the duty cycles to between 0 and 100%");
-// 
+//
 //         <Self as WriteDutyCycles>::write_pwm_duty(self, a, b, c)
 //     }
-// 
+//
 //     // In 3PWM, it's a bit weird. in PWM6, it's a simple `self.phasestate = state;`
 //     fn set_phasestate(&mut self, state: [PhaseState; 3]);
 //     // enable/disable pins are optional. will revisit this when I grok this
@@ -57,7 +70,7 @@ pub trait BLDCDriver: Sized {
 //     //         DutyCycle::try_new(0, 1.into().unwrap()),
 //     //     )
 //     // }
-// 
+//
 //     // fn disable(&mut self) -> Result<(), ()> {
 //     //     self.set_pwm(
 //     //         DutyCycle::try_new(0, 1.into().unwrap()),
@@ -66,7 +79,7 @@ pub trait BLDCDriver: Sized {
 //     //     )
 //     // }
 // }
-// 
+//
 // // TODO: Consider implementing "read current duty cycle"
 // pub trait WriteDutyCycles {
 //     type SetError;
@@ -77,7 +90,7 @@ pub trait BLDCDriver: Sized {
 //         duty_c: DutyCycle,
 //     ) -> Result<(), Self::SetError>;
 // }
-// 
+//
 // impl<A: SetDutyCycle, B: SetDutyCycle, C: SetDutyCycle> WriteDutyCycles for PinTriplet<A, B, C> {
 //     type SetError = ();
 //     fn write_pwm_duty(

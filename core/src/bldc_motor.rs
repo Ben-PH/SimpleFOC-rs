@@ -1,4 +1,5 @@
-use crate::{base_traits::{foc_control::{FOCMotor, MotionCtrl, PhaseAngle}, bldc_driver::BLDCDriver}, common::types::{VelocityPID, QCurrentPID, DCurrentPID}};
+use crate::common::types::{VelocityPID, QCurrentPID, DCurrentPID};
+
 
 
 #[allow(dead_code)]
@@ -34,34 +35,3 @@ impl<D> BLDCMotor<D> {
     }
 }
 
-impl<D: BLDCDriver> FOCMotor for BLDCMotor<D> {
-
-    fn init_foc_motor() -> Result<Self, ()> {
-        let driver: D = BLDCDriver::init_bldc_driver()?;
-        todo!()
-    }
-
-    fn enable(&mut self) {
-        todo!()
-    }
-
-    fn disable(&mut self) {
-        todo!()
-    }
-
-    fn init_foc_algo(&mut self) -> u32 {
-        todo!()
-    }
-
-    fn foc_loop(&mut self) -> ! {
-        todo!()
-    }
-
-    fn move_command(_motion: MotionCtrl) {
-        todo!()
-    }
-
-    fn set_phase_voltage(_u_q: f32, _u_d: f32, _phase_angle: PhaseAngle) {
-        todo!()
-    }
-}

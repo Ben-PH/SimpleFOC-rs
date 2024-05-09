@@ -1,4 +1,7 @@
+use embedded_hal::{digital::InputPin, pwm::SetDutyCycle};
 use embedded_time::duration::Microseconds;
+
+use crate::common::types::VelocityPID;
 
 /// The describes the position of an inductor in the pitch of the permenant magnetic field, in
 /// units of tau.
@@ -39,8 +42,20 @@ pub enum FOCModulationType {
     Trapezoid150,
 }
 
-pub trait FOCMotor: Sized {
-    fn init_foc_motor() -> Result<Self, ()>;
+// temporarily hacked to be for a 3pwm bldc motor
+pub trait FOController<EncA, EncB, PhA, PhB, PhC>: Sized
+where
+    EncA: InputPin,
+    EncB: InputPin,
+    PhA: SetDutyCycle,
+    PhB: SetDutyCycle,
+    PhC: SetDutyCycle,
+{
+    fn init_fo_control(
+        enc_pins: (EncA, EncB),
+        bldc3_pins: (PhA, PhB, PhC),
+        velocity_pid: VelocityPID,
+    ) -> Result<Self, ()>;
     fn enable(&mut self);
     fn disable(&mut self);
     // fn link_sensor/current_sensor(....
@@ -48,4 +63,49 @@ pub trait FOCMotor: Sized {
     fn foc_loop(&mut self) -> !;
     fn move_command(motion: MotionCtrl);
     fn set_phase_voltage(u_q: f32, u_d: f32, phase_angle: PhaseAngle);
+}
+
+pub struct UnimpFOController;
+
+#[allow(unused_variables)]
+impl<EncA, EncB, PhA, PhB, PhC> FOController<EncA, EncB, PhA, PhB, PhC> for UnimpFOController
+where
+    EncA: InputPin,
+    EncB: InputPin,
+    PhA: SetDutyCycle,
+    PhB: SetDutyCycle,
+    PhC: SetDutyCycle,
+{
+    fn init_fo_control(
+        enc_pins: (EncA, EncB),
+        bldc3_pins: (PhA, PhB, PhC),
+        velocity_pid: VelocityPID,
+    ) -> Result<Self, ()> {
+        // init the encoder
+        // enable interupts
+        // init the driver (including voltage settings)
+        // letup lp-filter
+        // init me
+        // init my foc algo
+        // ready
+        todo!()
+    }
+    fn enable(&mut self) {
+        todo!()
+    }
+    fn disable(&mut self) {
+        todo!()
+    }
+    fn init_foc_algo(&mut self) -> u32 {
+        todo!()
+    }
+    fn foc_loop(&mut self) -> ! {
+        todo!()
+    }
+    fn move_command(motion: MotionCtrl) {
+        todo!()
+    }
+    fn set_phase_voltage(u_q: f32, u_d: f32, phase_angle: PhaseAngle) {
+        todo!()
+    }
 }
