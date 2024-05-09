@@ -1,3 +1,4 @@
+use embedded_time::clock::Clock;
 use embedded_time::duration::Microseconds;
 use pid::Pid;
 

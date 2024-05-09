@@ -1,34 +1,35 @@
 use embedded_hal::digital::InputPin;
+use embedded_time::{duration::Microseconds, Clock, Instant};
 
-pub trait PosSensor {
-    /// Degrees, thetea, etc for rotary. mm, fractional, etc. for linear.
-    /// Some consideration is being made that this is actually the output of the encoder, such
-    /// as pulse-counts, and it's up to hardware-specific impl to xform that to a more real measure
-    type PosUnit: Copy;
+pub trait PosSensor<C: Clock> {
+    // TODO: encapsulate the notion of position as a type (mm, radians, encoder increments, etc.
     /// For determining velocity. use seconds, clock oscilations, etc at your leasure
-    type TimeUnit: Copy;
-    fn position(&self) -> Self::PosUnit;
-    fn velocity(&self) -> (Self::PosUnit, Self::TimeUnit);
+    fn position(&self, clock: &C) -> u32;
+    fn velocity(&self) -> (u32, u32);
     // fn acceleration(&self) -> ();
 
     // for now, assuming an auto-magic update using pulse-counting hardware
     // fn update_pos(&mut self);
 }
 
-struct VelocityBook<PosUnit, TimeUnit> {
-    pos_prev: PosUnit,
-    _pos_prev_ts: TimeUnit,
+struct VelocityBook<C: Clock> {
+    pos_prev: u32,
+    _pos_prev_ts: Instant<C>,
 }
 
-impl<PosUnit: Copy, TimeUnit: Copy> PosSensor for VelocityBook<PosUnit, TimeUnit> {
-    type PosUnit = PosUnit;
-    type TimeUnit = TimeUnit;
+impl<C: Clock> PosSensor<C> for VelocityBook {
+    // get a timestamp/position pair
+    // this is typically taken each time in the foc hot-loop
+    fn position(&self, clock: &C) -> u32 {
+        self._pos_prev_ts = clock.try_now().unwrap();
+        // self.pos_prev = $read_position;
 
-    fn position(&self) -> Self::PosUnit {
         self.pos_prev
     }
 
-    fn velocity(&self) -> (Self::PosUnit, Self::TimeUnit) {
+    // typically only sampled in the move-loop for the velocity PID
+    // TODO: encapsulate velocity, and its units, within the type-system
+    fn velocity(&self) -> (u32, u32) {
         todo!("there seems to be some delicacy to this. need to do this with care");
     }
 }

@@ -12,29 +12,19 @@ pub struct PhaseState {
 // For hardware-specific cfg initialisation
 pub trait ConfigPWM {
     type Params;
-    fn config<A, B, C>(
-        pins: PinTriplet<A, B, C>,
-    ) -> Result<Self::Params, PinTriplet<A, B, C>>;
+    fn config<A, B, C>(pins: PinTriplet<A, B, C>) -> Result<Self::Params, PinTriplet<A, B, C>>;
 }
 
 // for bldc: 3 and 6 pins. For now, assuming just 3
-#[allow(non_camel_case_types)]
-pub trait BLDCDriver
-// <
-//     mVPsup: Unsigned,
-//     mVLim: Unsigned + IsLessOrEqual<mVPsup, Output = typenum::True>,
-// >
-: Sized + WriteDutyCycles + ConfigPWM
-{
+// TODO: Add voltage constraints
+pub trait BLDCDriver: Sized + WriteDutyCycles + ConfigPWM {
     // TODO: The constraints that I need to be able to encapsulate here:
     //  - the pins can be turned into pwm pins X SetDutyCycle implies already have a frequency
     //  - the pins are to be moved into the returned self
     //  - there must be an encapsulation of hw-specifics. This is to be returned by
     //  `ConfigPWM::config`
     //   - in sfoc esp32, this is a pointer to `SP32MCPWMDriversParams`
-    fn init_bldc_driver<A, B, C>(
-        pins: PinTriplet<A, B, C>,
-    ) -> Result<Self, PinTriplet<A, B, C>>;
+    fn init_bldc_driver<A, B, C>(pins: PinTriplet<A, B, C>) -> Result<Self, PinTriplet<A, B, C>>;
 
     #[allow(unreachable_code)]
     fn set_pwm(
@@ -43,10 +33,10 @@ pub trait BLDCDriver
     ) -> Result<(), <Self as WriteDutyCycles>::SetError> {
         todo!("constrain the phase voltages to be between 0 and 100%");
         todo!("apply the duty cycles as a coeficient to the phase voltages");
-        let (_a, _b, _c): (DutyCycle, DutyCycle, DutyCycle) =
+        let (a, b, c): (DutyCycle, DutyCycle, DutyCycle) =
             todo!("constrain the duty cycles to between 0 and 100%");
 
-        <Self as WriteDutyCycles>::write_pwm_duty(self, _a, _b, _c)
+        <Self as WriteDutyCycles>::write_pwm_duty(self, a, b, c)
     }
 
     // In 3PWM, it's a bit weird. in PWM6, it's a simple `self.phasestate = state;`
