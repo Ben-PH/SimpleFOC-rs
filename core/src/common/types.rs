@@ -45,7 +45,6 @@ pub struct Velocity<D, T> {
     pub time: T,
 }
 
-
 pub struct QCurrentPID(pub Pid<f32>);
 pub struct DCurrentPID(pub Pid<f32>);
 pub struct VelocityPID(pub Pid<f32>);

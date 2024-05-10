@@ -7,4 +7,4 @@ pub mod commands;
 pub mod common;
 pub mod hw_drivers;
 
-pub use pid;
+pub use pid as pid_reexported;

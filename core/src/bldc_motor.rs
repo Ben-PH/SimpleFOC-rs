@@ -1,6 +1,4 @@
-use crate::common::types::{VelocityPID, QCurrentPID, DCurrentPID};
-
-
+use crate::common::types::{DCurrentPID, QCurrentPID, VelocityPID};
 
 #[allow(dead_code)]
 // D: implements the bldc driver
@@ -34,4 +32,3 @@ impl<D> BLDCMotor<D> {
         todo!()
     }
 }
-

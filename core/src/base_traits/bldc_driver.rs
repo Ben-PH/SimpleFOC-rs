@@ -1,4 +1,3 @@
-
 use crate::common::helpers::DutyCycle;
 
 /// Describes what a given phase/coil/inductor is doing
@@ -19,9 +18,15 @@ pub struct UnimplBLDCDriver;
 
 #[allow(unused_variables)]
 impl BLDCDriver for UnimplBLDCDriver {
-    fn init_bldc_driver() -> Result<Self, ()> { todo!() }
-    fn enable(&mut self) { todo!() }
-    fn disable(&mut self) { todo!() }
+    fn init_bldc_driver() -> Result<Self, ()> {
+        todo!()
+    }
+    fn enable(&mut self) {
+        todo!()
+    }
+    fn disable(&mut self) {
+        todo!()
+    }
     fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle) {
         todo!()
     }
