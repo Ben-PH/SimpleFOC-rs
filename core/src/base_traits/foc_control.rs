@@ -1,7 +1,13 @@
 use embedded_hal::{digital::InputPin, pwm::SetDutyCycle};
 use embedded_time::{duration::Microseconds, Clock};
 
-use crate::common::types::VelocityPID;
+use crate::{
+    base_traits::bldc_driver::UnimplBLDCDriver,
+    bldc_motor::BLDCMotor,
+    common::{helpers::PinTriplet, types::VelocityPID},
+};
+
+use super::pos_sensor::PosSensor;
 
 /// The describes the position of an inductor in the pitch of the permenant magnetic field, in
 /// units of tau.
@@ -43,10 +49,11 @@ pub enum FOCModulationType {
 }
 
 // temporarily hacked to be for a 3pwm bldc motor
-pub trait FOController<EncA, EncB, PhA, PhB, PhC, C>: Sized
+pub trait FOController<EncA, EncB, Enc, PhA, PhB, PhC, C>: Sized
 where
     EncA: InputPin,
     EncB: InputPin,
+    Enc: From<(EncA, EncB)> + PosSensor<C>,
     PhA: SetDutyCycle,
     PhB: SetDutyCycle,
     PhC: SetDutyCycle,
@@ -54,7 +61,7 @@ where
 {
     fn init_fo_control(
         enc_pins: (EncA, EncB),
-        bldc3_pins: (PhA, PhB, PhC),
+        bldc3_pins: PinTriplet<PhA, PhB, PhC>,
         velocity_pid: VelocityPID,
         time_source: C,
     ) -> Result<Self, ()>;
@@ -70,10 +77,12 @@ where
 pub struct UnimpFOController;
 
 #[allow(unused_variables)]
-impl<EncA, EncB, PhA, PhB, PhC, C> FOController<EncA, EncB, PhA, PhB, PhC, C> for UnimpFOController
+impl<EncA, EncB, Enc, PhA, PhB, PhC, C> FOController<EncA, EncB, Enc, PhA, PhB, PhC, C>
+    for UnimpFOController
 where
     EncA: InputPin,
     EncB: InputPin,
+    Enc: From<(EncA, EncB)> + PosSensor<C>,
     PhA: SetDutyCycle,
     PhB: SetDutyCycle,
     PhC: SetDutyCycle,
@@ -81,14 +90,13 @@ where
 {
     fn init_fo_control(
         enc_pins: (EncA, EncB),
-        bldc3_pins: (PhA, PhB, PhC),
+        bldc3_pins: PinTriplet<PhA, PhB, PhC>,
         velocity_pid: VelocityPID,
         time_source: C,
     ) -> Result<Self, ()> {
-        // init the encoder
-        // enable interupts
-        // init the driver (including voltage settings)
-        // letup lp-filter
+        let pos_encoder = Enc::from(enc_pins);
+        // pos_encoder.interupt_setup(todo);
+        // let motor_periph = UnimplBLDCDriver::init_bldc_driver(bldc3_pins);
         // init me
         // init my foc algo
         // ready

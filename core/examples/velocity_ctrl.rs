@@ -40,12 +40,9 @@ use sfoc_rs::{base_traits::foc_control::FOController, common::helpers::PinTriple
 // e.g. for esp32:
 //
 // ```
-//
 //     // expose the resources
 //     let peripherals = Peripherals::take();
 //     let system = peripherals.SYSTEM.split();
-//
-//
 //
 //     // marshal the pins for encoder and motor mins
 //     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);

@@ -1,4 +1,12 @@
-use crate::common::helpers::DutyCycle;
+use core::ops::Add;
+
+use embedded_hal::pwm::SetDutyCycle;
+use frunk_core::{
+    hlist::{HCons, HList, Plucker},
+    HList as HLType,
+};
+
+use crate::common::helpers::{DutyCycle, PinTriplet};
 
 /// Describes what a given phase/coil/inductor is doing
 #[derive(Default, Copy, Clone)]
@@ -8,7 +16,7 @@ pub struct PhaseState {
 }
 
 pub trait BLDCDriver: Sized {
-    fn init_bldc_driver() -> Result<Self, ()>;
+    fn init_bldc_driver<A: SetDutyCycle, B: SetDutyCycle, C: SetDutyCycle>(pins: PinTriplet<A, B, C>) -> Result<Self, ()>;
     fn enable(&mut self);
     fn disable(&mut self);
     fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle);
@@ -18,7 +26,7 @@ pub struct UnimplBLDCDriver;
 
 #[allow(unused_variables)]
 impl BLDCDriver for UnimplBLDCDriver {
-    fn init_bldc_driver() -> Result<Self, ()> {
+    fn init_bldc_driver<A: SetDutyCycle, B: SetDutyCycle, C: SetDutyCycle>(pins: PinTriplet<A, B, C>) -> Result<Self, ()> {
         todo!()
     }
     fn enable(&mut self) {
@@ -33,6 +41,7 @@ impl BLDCDriver for UnimplBLDCDriver {
     fn set_phase_state(&mut self, ps_a: PhaseState, ps_b: PhaseState, ps_c: PhaseState) {
         todo!()
     }
+
 }
 
 // // For hardware-specific cfg initialisation
@@ -73,8 +82,7 @@ impl BLDCDriver for UnimplBLDCDriver {
 //     //         DutyCycle::try_new(0, 1.into().unwrap()),
 //     //         DutyCycle::try_new(0, 1.into().unwrap()),
 //     //         DutyCycle::try_new(0, 1.into().unwrap()),
-//     //     )
-//     // }
+//     //     ) // }
 //
 //     // fn disable(&mut self) -> Result<(), ()> {
 //     //     self.set_pwm(
