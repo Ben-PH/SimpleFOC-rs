@@ -86,3 +86,19 @@ so brass-tax on setup:
 
 ...but this doesn't account for the need for a time-source. arduino just uses some obfuscated global, but that just won't do...
 
+
+### That was for non-hardware-specific examples.
+
+...but I have a hunch that the rust way of doing this is slightly different to the cpp/arduino way. not better or worse. just different.
+
+Being _super_ minimilist at the platform specific level, it seems that "for any given platform, just pull out 3 pins that can impl `SetDutyCycle`, 2 pins that are input pins, and setup a `Clock` implementor to create a time-source.
+
+E.g. the library would just be a set of interfaces, with default implementations that defer to the methods of assosciated types. e.g. the FOCController would defer to the clock impl for time-getting. when it needs to set the duty cycles, it defers to the assosciated type that is constrained to implement the motor driver trait.
+
+so this to track the workflow:
+
+- encoder init. this is in two parts. the encoder itself, and the MCU implementation of configuring. esp32, for example, can just use the pcnt periph, and optionally, interupts for position-limits, index ticks, etc., then a raw register read when incremental position is needed.
+- encoder init in upstream caches a timestamp. It seems that speed tracking is handled in here?
+- 3 and 6PWM init are the same* "set the pins to output, normalise voltage, return the cpp-equivilent to `Result<Self::BLDCDriverParameters, ()>`
+
+easy, right?
