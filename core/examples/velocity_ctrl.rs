@@ -17,7 +17,7 @@ mod pin_numbers {
 
 mod initial_config {
 
-    use sfoc_rs::{pid_reexported::Pid, common::types::VelocityPID};
+    use sfoc_rs::{common::types::VelocityPID, pid_reexported::Pid};
 
     pub fn initial_velocity_pid() -> VelocityPID {
         let mut v_pid = VelocityPID(Pid::new(0.0, 6.0));
@@ -30,24 +30,71 @@ mod initial_config {
     pub type DriverVoltagePwrSup = typenum::U12;
 }
 
-
-use pin_numbers::*;
+use embedded_hal::{digital::InputPin, pwm::SetDutyCycle};
+use embedded_time::Clock;
 use initial_config::*;
-use sfoc_rs::base_traits::foc_control::FOController;
-fn entry() -> ! {
-    // Here we need to specify to the type-system which implementation is being used. For each
-    // supported platform, a `struct` must implement these three traits to allow for the `<$OBJECt as $TRAIT>::$TRAIT_FN` pattern
-    // I'm not 100% convinced this is the best way, and I'm pretty sure type-inference means
-    // `$TRAIT::$TRAIT_FN(...)` will be sufficient, so long as `init_fo_control` (or elsewhere)
-    // lets the compiler infer "okay, I understand which implementation of these traits i need to
-    // use" 
-    let motor_pins = <Platform as MotorPinClaimer>::motor_pins::<PhaseA, PhaseB, PhaseC>();
-    let encoder_pins = <Platform as EncoderPinClaimer>::encoder_pins::<EncA, EncB>();
-    let time_getter = <Platform as TimeSourceBuilder>::get_source_clock_implementor();
-    
+use sfoc_rs::{base_traits::foc_control::FOController, common::helpers::PinTriplet};
+
+// as it currently stands, the user will need to use platform specific code to get the right pins.
+// This can very in complexity, but the goal is to make it
+// e.g. for esp32:
+//
+// ```
+//
+//     // expose the resources
+//     let peripherals = Peripherals::take();
+//     let system = peripherals.SYSTEM.split();
+//
+//
+//
+//     // marshal the pins for encoder and motor mins
+//     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
+//     let pins = io.pins;
+//
+//     let encoder_pins = (
+//         pins.gpio1.into_pull_up_input(),
+//         pins.gpio2.into_pull_up_input(),
+//     );
+//
+//     let motor_pins = PinTriplet {
+//         phase_a: pins.gpio3,
+//         phase_a: pins.gpio4,
+//         phase_a: pins.gpio5,
+//      };
+//
+//     // create a time-source. This would feasibly be baked into the platform library, but easily
+//     enough implemented as part of sfoc platform support.
+//     let clock_ctrl = ClockControl::boot_defaults(system.clock_control);
+//     let clocks: Clocks = clock_ctrl.freeze();
+//     let group = TimerGroup::new(peripherals.TIMG0, &clocks, None);
+//     let time_src = Timer0::init(group.timer0);
+//
+//     entry(motor_pins, encoder_pins, time_src)
+// ```
+fn entry<
+    PA: SetDutyCycle,
+    PB: SetDutyCycle,
+    PC: SetDutyCycle,
+    MPinSource: Into<PinTriplet<PA, PB, PC>>,
+    EncA: InputPin,
+    EncB: InputPin,
+>(
+    motor_pins: MPinSource,
+    encoder_pins: (EncA, EncB),
+    time_getter: impl Clock,
+) -> ! {
+    // ...my thinking being is that the hardware support library defines how the pins are made
+    // available/initialised. e.g.:
+    // ```
+    // impl From<$PINS> for `PinTriplet<...> {
+    //     fn into(...) -> ... {
+    //         $hw-specific-conversions-here
+    //     }
+    // }
+    let motor_pins: PinTriplet<PA, PB, PC> = motor_pins.into();
 
     // Ideally, this `Placeholder` type would encapsulate specific implementations, such as BLDC(4/6)/Stepper(2/4) and platform. That's a fair way away, at least for now, and not so sure what that will look like. Key points of this comment:
-    //  - Platform selection (i.e. which MCU to use) is aliased/abstracted/etc out of user-code almost entirely. 
+    //  - Platform selection (i.e. which MCU to use) is aliased/abstracted/etc out of user-code almost entirely.
     //  - Use-case specifics such as which motor is used, voltages, pins, etc is encapsulated at
     //  the type level.
     //
@@ -55,11 +102,12 @@ fn entry() -> ! {
     //  incompatable pins (i.e. not all pins can be encoder input pins. motor pins should belong to
     //  the same timer) is a compiletime error. This places a burden on making sure the
     //  platform-specific pin-getters are type-constrained properly.
+    //
     let foced_up_motor: PlaceHolderFOCInstance = FOController::init_fo_control(
         encoder_pins,
         motor_pins,
         initial_velocity_pid(),
-        time_getter
+        time_getter,
     );
 
     // I'm not exactly sure what is going on with the `command` global, and in the velocity control
@@ -87,6 +135,5 @@ fn main_loop(controller: (), command_channel: ()) -> ! {
 }
 
 fn main() {
-    entry()
+    todo!()
 }
-
