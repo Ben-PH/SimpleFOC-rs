@@ -1,5 +1,5 @@
 use embedded_hal::{digital::InputPin, pwm::SetDutyCycle};
-use embedded_time::duration::Microseconds;
+use embedded_time::{duration::Microseconds, Clock};
 
 use crate::common::types::VelocityPID;
 
@@ -43,18 +43,20 @@ pub enum FOCModulationType {
 }
 
 // temporarily hacked to be for a 3pwm bldc motor
-pub trait FOController<EncA, EncB, PhA, PhB, PhC>: Sized
+pub trait FOController<EncA, EncB, PhA, PhB, PhC, C>: Sized
 where
     EncA: InputPin,
     EncB: InputPin,
     PhA: SetDutyCycle,
     PhB: SetDutyCycle,
     PhC: SetDutyCycle,
+    C: Clock,
 {
     fn init_fo_control(
         enc_pins: (EncA, EncB),
         bldc3_pins: (PhA, PhB, PhC),
         velocity_pid: VelocityPID,
+        time_source: C,
     ) -> Result<Self, ()>;
     fn enable(&mut self);
     fn disable(&mut self);
@@ -68,18 +70,20 @@ where
 pub struct UnimpFOController;
 
 #[allow(unused_variables)]
-impl<EncA, EncB, PhA, PhB, PhC> FOController<EncA, EncB, PhA, PhB, PhC> for UnimpFOController
+impl<EncA, EncB, PhA, PhB, PhC, C> FOController<EncA, EncB, PhA, PhB, PhC, C> for UnimpFOController
 where
     EncA: InputPin,
     EncB: InputPin,
     PhA: SetDutyCycle,
     PhB: SetDutyCycle,
     PhC: SetDutyCycle,
+    C: Clock,
 {
     fn init_fo_control(
         enc_pins: (EncA, EncB),
         bldc3_pins: (PhA, PhB, PhC),
         velocity_pid: VelocityPID,
+        time_source: C,
     ) -> Result<Self, ()> {
         // init the encoder
         // enable interupts

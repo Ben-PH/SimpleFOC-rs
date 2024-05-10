@@ -1,8 +1,8 @@
 #![no_std]
 #![no_main]
 
-use embedded_hal::digital::InputPin;
-use embedded_time::{rate::Fraction, Instant};
+use embedded_hal::{digital::InputPin, pwm::SetDutyCycle};
+use embedded_time::{rate::Fraction, Clock, Instant};
 use esp_backtrace as _;
 use esp_hal::{
     clock::{ClockControl, Clocks},
@@ -14,13 +14,16 @@ use esp_hal::{
     peripheral::Peripheral,
     peripherals::{Peripherals, MCPWM0},
     prelude::{_esp_hal_gpio_OutputPin as EsOutputPin, *},
-    timer::{Enable, TimerGroupInstance},
+    timer::{Enable, TimerGroup, TimerGroupInstance},
     Blocking,
 };
 
-use sfoc_rs::base_traits::{
-    foc_control::{FOController, UnimpFOController},
-    pos_sensor::ABEncoder,
+use sfoc_rs::{
+    base_traits::{
+        foc_control::{FOController, UnimpFOController},
+        pos_sensor::ABEncoder,
+    },
+    common::types::VelocityPID,
 };
 
 struct Timer0<TG: TimerGroupInstance> {
@@ -49,7 +52,9 @@ fn main() -> ! {
     let system = peripherals.SYSTEM.split();
     let clock_ctrl = ClockControl::boot_defaults(system.clock_control);
     let clocks: Clocks = clock_ctrl.freeze();
-    // let group = TimerGroup::new(peripherals.TIMG0, &clocks, None);
+    let group = TimerGroup::new(peripherals.TIMG0, &clocks, None);
+
+    let time_src = Timer0::init(group.timer0);
 
     // Set GPIO0 as an output, and set its state high initially.
     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
@@ -74,14 +79,13 @@ fn main() -> ! {
         motor_pins.2,
     );
 
-
     let mut v_pid = sfoc_rs::common::types::VelocityPID(sfoc_rs::pid::Pid::new(0.0, 6.0));
     v_pid.0.kp = 0.2;
     v_pid.0.ki = 2.0;
     v_pid.0.kd = 0.0;
 
     let _motor: UnimpFOController =
-        FOController::init_fo_control(encoder_pins, (a, b, c), v_pid).unwrap();
+        FOController::init_fo_control(encoder_pins, (a, b, c), v_pid, time_src).unwrap();
 
     loop {}
 }
