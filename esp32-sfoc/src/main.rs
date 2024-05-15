@@ -6,7 +6,7 @@ use embedded_time::{rate::Fraction, Instant};
 use esp_backtrace as _;
 use esp_hal::{
     clock::{ClockControl, Clocks},
-    gpio::IO,
+    gpio::{GpioPin, Input, PullUp, IO},
     mcpwm::{
         operator::{PwmActions, PwmPin, PwmPinConfig, PwmUpdateMethod},
         timer::PwmWorkingMode,
@@ -61,8 +61,8 @@ fn main() -> ! {
         pins.gpio1,
         pins.gpio2,
         pins.gpio3,
-        // pins.gpio4,
-        // pins.gpio5,
+        pins.gpio4,
+        pins.gpio5,
     );
 
     let mut v_pid =
@@ -80,15 +80,15 @@ struct Esp3PWM<
     PinA: esp_hal::gpio::OutputPin,
     PinB: esp_hal::gpio::OutputPin,
     PinC: esp_hal::gpio::OutputPin,
-    // const EnA: u8,
-    // const EnB: u8,
+    EncA: esp_hal::gpio::InputPin,
+    EncB: esp_hal::gpio::InputPin,
 > {
     // mcpwm_periph: MCPWM<'d, PwmOp>,
     pin_a: PwmPin<'d, PinA, PwmOp, 0, true>,
     pin_b: PwmPin<'d, PinB, PwmOp, 1, true>,
     pin_c: PwmPin<'d, PinC, PwmOp, 2, true>,
-    // enc_a: GpioPin<Input<PullUp>, EnA>,
-    // enc_b: GpioPin<Input<PullUp>, EnA>,
+    enc_a: EncA,
+    enc_b: EncB,
 }
 
 impl<
@@ -97,9 +97,9 @@ impl<
         PinA: esp_hal::gpio::OutputPin,
         PinB: esp_hal::gpio::OutputPin,
         PinC: esp_hal::gpio::OutputPin,
-        // const EnA: u8,
-        // const EnB: u8,
-    > Esp3PWM<'d, PwmOp, PinA, PinB, PinC>
+        EncA: esp_hal::gpio::InputPin,
+        EncB: esp_hal::gpio::InputPin,
+    > Esp3PWM<'d, PwmOp, PinA, PinB, PinC, EncA, EncB>
 {
     fn new(
         clocks: &Clocks<'_>,
@@ -109,8 +109,8 @@ impl<
         pin_a: impl Peripheral<P = PinA> + 'd,
         pin_b: impl Peripheral<P = PinB> + 'd,
         pin_c: impl Peripheral<P = PinC> + 'd,
-        // enc_a: impl Peripheral<P = GpioPin<Unknown, EnA>> + 'd,
-        // enc_b: impl Peripheral<P = GpioPin<Unknown, EnB>> + 'd,
+        enc_a: EncA,
+        enc_b: EncB,
     ) -> Self {
         let timg0 = TimerGroup::new(timg_choice, &clocks, None);
         let _time_src = Timer0::init(timg0.timer0);
@@ -134,16 +134,13 @@ impl<
             .unwrap();
         mcpwm_periph.timer0.start(pw_timer_cfg);
 
-        // let enc_a = enc_a.into_pullup_input();
-        // let enc_b = enc_b.into_pullup_input();
-
         let res = Self {
             // mcpwm_periph,
             pin_a,
             pin_b,
             pin_c,
-            //     enc_a,
-            //     enc_b,
+            enc_a,
+            enc_b,
         };
         // res.disable();
         res
@@ -156,9 +153,9 @@ impl<
         PinA: SetDutyCycle + esp_hal::gpio::OutputPin,
         PinB: SetDutyCycle + esp_hal::gpio::OutputPin,
         PinC: SetDutyCycle + esp_hal::gpio::OutputPin,
-        // const EnA: u8,
-        // const EnB: u8,
-    > BLDCDriver for Esp3PWM<'d, PwmOp, PinA, PinB, PinC>
+        EncA: esp_hal::gpio::InputPin,
+        EncB: esp_hal::gpio::InputPin,
+    > BLDCDriver for Esp3PWM<'d, PwmOp, PinA, PinB, PinC, EncA, EncB>
 {
     fn enable(&mut self) {
         todo!()
