@@ -11,7 +11,7 @@ use embedded_time::{rate::Fraction, Instant};
 use esp_backtrace as _;
 use esp_hal::{
     clock::{ClockControl, Clocks},
-    gpio::IO,
+    gpio::{GpioPin, Input, PullUp, Unknown, IO},
     mcpwm::{
         operator::{Operator, PwmActions, PwmPin, PwmPinConfig, PwmUpdateMethod},
         timer::Timer as McTimer,
@@ -196,26 +196,11 @@ where
     }
 }
 
-struct MyABEncoder<InA: InputPin, InB: InputPin> {
-    ina: InA,
-    inb: InB,
-}
-struct MyABInit<InA: InputPin, InB: InputPin> {
-    ina: InA,
-    inb: InB,
+struct EspPulsCounter {
+    reader_periph: Unit,
 }
 
-struct EspPulsCounter<PinA, PinB> {
-    reader: Unit,
-    _ina: PhantomData<PinA>,
-    _inb: PhantomData<PinB>,
-}
-
-impl<A, B> sfoc_rs::base_traits::pos_sensor::ABEncoder<A, B> for EspPulsCounter<A, B>
-where
-    A: InputPin,
-    B: InputPin,
-{
+impl sfoc_rs::base_traits::pos_sensor::ABEncoder for EspPulsCounter {
     type RawOutput = i16;
 
     fn read(&self) -> Self::RawOutput {
@@ -223,13 +208,13 @@ where
     }
 }
 
-impl<'d, PinA, PinB> From<(PCNT<'d>, PinA, PinB)> for EspPulsCounter<PinA, PinB>
-where
-    PinA: InputPin + esp_hal::gpio::InputPin + Peripheral<P = PinA>,
-    PinB: InputPin + esp_hal::gpio::InputPin + Peripheral<P = PinB>,
-{
-    fn from(value: (PCNT, PinA, PinB)) -> Self {
-        let mut u0 = value.0.get_unit(unit::Number::Unit0);
+impl<'d> EspPulsCounter {
+    fn new(
+        pcnt_periph: PCNT,
+        pin_a: impl Peripheral<P = impl esp_hal::gpio::InputPin> + 'd,
+        pin_b: impl Peripheral<P = impl esp_hal::gpio::InputPin> + 'd,
+    ) -> Self {
+        let mut u0 = pcnt_periph.get_unit(unit::Number::Unit0);
         u0.configure(unit::Config {
             low_limit: i16::MIN,
             high_limit: i16::MAX,
@@ -240,12 +225,10 @@ where
 
         println!("setup channel 0");
         let mut ch0 = u0.get_channel(channel::Number::Channel0);
-        let mut pin_a = value.1;
-        let mut pin_b = value.2;
 
         ch0.configure(
-            PcntSource::from_pin(&mut pin_a),
-            PcntSource::from_pin(&mut pin_b),
+            PcntSource::from_pin(pin_a),
+            PcntSource::from_pin(pin_b),
             channel::Config {
                 lctrl_mode: channel::CtrlMode::Reverse,
                 hctrl_mode: channel::CtrlMode::Keep,
@@ -259,8 +242,8 @@ where
         println!("setup channel 1");
         let mut ch1 = u0.get_channel(channel::Number::Channel1);
         ch1.configure(
-            PcntSource::from_pin(&mut pin_b),
-            PcntSource::from_pin(&mut pin_a),
+            PcntSource::from_pin(pin_b),
+            PcntSource::from_pin(pin_a),
             channel::Config {
                 lctrl_mode: channel::CtrlMode::Reverse,
                 hctrl_mode: channel::CtrlMode::Keep,
@@ -271,10 +254,6 @@ where
             },
         );
         let ticks: i16 = u0.get_value();
-        Self {
-            reader: u0,
-            _ina: PhantomData,
-            _inb: PhantomData,
-        }
+        Self { reader_periph: u0 }
     }
 }
