@@ -1,39 +1,26 @@
 #![no_std]
 #![no_main]
 
-
-use embedded_hal::{
-    digital::{OutputPin, InputPin}, pwm::SetDutyCycle,
-};
+use embedded_hal::{digital::OutputPin, pwm::SetDutyCycle};
 use embedded_time::{rate::Fraction, Instant};
 use esp_backtrace as _;
 use esp_hal::{
     clock::{ClockControl, Clocks},
-    gpio::{IO, PushPull, GpioPin, Output, Pin, Unknown, Input, PullUp},
+    gpio::IO,
     mcpwm::{
         operator::{PwmActions, PwmPin, PwmPinConfig, PwmUpdateMethod},
         timer::PwmWorkingMode,
         PeripheralClockConfig, PwmPeripheral, MCPWM,
     },
-    pcnt::{
-        channel,
-        channel::PcntSource,
-        unit::{self, Unit},
-    },
+    pcnt::unit::Unit,
     peripheral::Peripheral,
     peripherals::{Peripherals, MCPWM0, PCNT},
     prelude::*,
     timer::{Enable, TimerGroup, TimerGroupInstance},
     Blocking,
 };
-use esp_println::println;
 
-use sfoc_rs::{
-    base_traits::{
-        bldc_driver::BLDCDriver,
-    },
-    common::helpers::PinTriplet,
-};
+use sfoc_rs::{base_traits::bldc_driver::BLDCDriver, common::helpers::PinTriplet};
 
 struct Timer0<TG: TimerGroupInstance> {
     timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>,
@@ -66,7 +53,7 @@ fn main() -> ! {
     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
     let pins = io.pins;
 
-    let driver = Esp3PWM::new(
+    let _driver = Esp3PWM::new(
         &clocks,
         peripherals.TIMG0,
         peripherals.MCPWM0,
@@ -90,13 +77,13 @@ fn main() -> ! {
 struct Esp3PWM<
     'd,
     PwmOp: PwmPeripheral,
-        PinA: SetDutyCycle + esp_hal::gpio::OutputPin,
-        PinB: SetDutyCycle + esp_hal::gpio::OutputPin,
-        PinC: SetDutyCycle + esp_hal::gpio::OutputPin,
+    PinA: esp_hal::gpio::OutputPin,
+    PinB: esp_hal::gpio::OutputPin,
+    PinC: esp_hal::gpio::OutputPin,
     // const EnA: u8,
     // const EnB: u8,
 > {
-    mcpwm_periph: MCPWM<'d, PwmOp>,
+    // mcpwm_periph: MCPWM<'d, PwmOp>,
     pin_a: PwmPin<'d, PinA, PwmOp, 0, true>,
     pin_b: PwmPin<'d, PinB, PwmOp, 1, true>,
     pin_c: PwmPin<'d, PinC, PwmOp, 2, true>,
@@ -107,19 +94,18 @@ struct Esp3PWM<
 impl<
         'd,
         PwmOp: PwmPeripheral,
-        PinA: SetDutyCycle + esp_hal::gpio::OutputPin,
-        PinB: SetDutyCycle + esp_hal::gpio::OutputPin,
-        PinC: SetDutyCycle + esp_hal::gpio::OutputPin,
+        PinA: esp_hal::gpio::OutputPin,
+        PinB: esp_hal::gpio::OutputPin,
+        PinC: esp_hal::gpio::OutputPin,
         // const EnA: u8,
         // const EnB: u8,
-
     > Esp3PWM<'d, PwmOp, PinA, PinB, PinC>
 {
     fn new(
         clocks: &Clocks<'_>,
         timg_choice: impl Peripheral<P = impl TimerGroupInstance> + 'd,
         mcpwm_choice: impl Peripheral<P = PwmOp> + 'd,
-        pcnt: impl Peripheral<P = PCNT> + 'd,
+        _pcnt: impl Peripheral<P = PCNT> + 'd,
         pin_a: impl Peripheral<P = PinA> + 'd,
         pin_b: impl Peripheral<P = PinB> + 'd,
         pin_c: impl Peripheral<P = PinC> + 'd,
@@ -127,7 +113,7 @@ impl<
         // enc_b: impl Peripheral<P = GpioPin<Unknown, EnB>> + 'd,
     ) -> Self {
         let timg0 = TimerGroup::new(timg_choice, &clocks, None);
-        let time_src = Timer0::init(timg0.timer0);
+        let _time_src = Timer0::init(timg0.timer0);
         let clock_cfg = PeripheralClockConfig::with_frequency(&clocks, 40.MHz()).unwrap();
 
         let pin_config =
@@ -136,9 +122,12 @@ impl<
         mcpwm_periph.operator0.set_timer(&mcpwm_periph.timer0);
         mcpwm_periph.operator1.set_timer(&mcpwm_periph.timer0);
         mcpwm_periph.operator2.set_timer(&mcpwm_periph.timer0);
-        let pin_a: PwmPin<'d, PinA, _, 0, true> = mcpwm_periph.operator0.with_pin_a(pin_a, pin_config());
-        let pin_b: PwmPin<'d, PinB, _, 1, true> = mcpwm_periph.operator1.with_pin_a(pin_b, pin_config());
-        let pin_c: PwmPin<'d, PinC, _, 2, true> = mcpwm_periph.operator2.with_pin_a(pin_c, pin_config());
+        let pin_a: PwmPin<'d, PinA, _, 0, true> =
+            mcpwm_periph.operator0.with_pin_a(pin_a, pin_config());
+        let pin_b: PwmPin<'d, PinB, _, 1, true> =
+            mcpwm_periph.operator1.with_pin_a(pin_b, pin_config());
+        let pin_c: PwmPin<'d, PinC, _, 2, true> =
+            mcpwm_periph.operator2.with_pin_a(pin_c, pin_config());
 
         let pw_timer_cfg = clock_cfg
             .timer_clock_with_frequency(99, PwmWorkingMode::UpDown, 20.kHz())
@@ -148,21 +137,21 @@ impl<
         // let enc_a = enc_a.into_pullup_input();
         // let enc_b = enc_b.into_pullup_input();
 
-        let mut res = Self {
-            mcpwm_periph,
+        let res = Self {
+            // mcpwm_periph,
             pin_a,
             pin_b,
             pin_c,
-        //     enc_a,
-        //     enc_b,
+            //     enc_a,
+            //     enc_b,
         };
-        res.disable();
+        // res.disable();
         res
     }
 }
 
 impl<
-'d,
+        'd,
         PwmOp: PwmPeripheral,
         PinA: SetDutyCycle + esp_hal::gpio::OutputPin,
         PinB: SetDutyCycle + esp_hal::gpio::OutputPin,
@@ -183,21 +172,33 @@ impl<
         dc_b: sfoc_rs::common::helpers::DutyCycle,
         dc_c: sfoc_rs::common::helpers::DutyCycle,
     ) {
-        SetDutyCycle::set_duty_cycle_fraction(&mut self.pin_a, dc_a.numer(), dc_a.denom().into());
-        SetDutyCycle::set_duty_cycle_fraction(&mut self.pin_b, dc_b.numer(), dc_b.denom().into());
-        SetDutyCycle::set_duty_cycle_fraction(&mut self.pin_c, dc_c.numer(), dc_c.denom().into());
+        let _ = SetDutyCycle::set_duty_cycle_fraction(
+            &mut self.pin_a,
+            dc_a.numer(),
+            dc_a.denom().into(),
+        );
+        let _ = SetDutyCycle::set_duty_cycle_fraction(
+            &mut self.pin_b,
+            dc_b.numer(),
+            dc_b.denom().into(),
+        );
+        let _ = SetDutyCycle::set_duty_cycle_fraction(
+            &mut self.pin_c,
+            dc_c.numer(),
+            dc_c.denom().into(),
+        );
     }
     fn set_phase_state(
         &mut self,
-        ps_a: sfoc_rs::base_traits::bldc_driver::PhaseState,
-        ps_b: sfoc_rs::base_traits::bldc_driver::PhaseState,
-        ps_c: sfoc_rs::base_traits::bldc_driver::PhaseState,
+        _ps_a: sfoc_rs::base_traits::bldc_driver::PhaseState,
+        _ps_b: sfoc_rs::base_traits::bldc_driver::PhaseState,
+        _ps_c: sfoc_rs::base_traits::bldc_driver::PhaseState,
     ) {
         todo!()
     }
 }
 
-fn init_motor_pins<'d, PA, PB, PC>(
+fn _init_motor_pins<'d, PA, PB, PC>(
     pwm_peripheral: impl Peripheral<P = MCPWM0> + 'd,
     clk_cfg: PeripheralClockConfig,
     pa: impl Peripheral<P = PA> + 'd,
@@ -225,11 +226,11 @@ where
     }
 }
 
-struct EspPulsCounter {
-    reader_periph: Unit,
+struct _EspPulsCounter {
+    _reader_periph: Unit,
 }
 
-impl sfoc_rs::base_traits::pos_sensor::ABEncoder for EspPulsCounter {
+impl sfoc_rs::base_traits::pos_sensor::ABEncoder for _EspPulsCounter {
     type RawOutput = i16;
 
     fn read(&self) -> Self::RawOutput {
@@ -251,10 +252,10 @@ impl sfoc_rs::base_traits::pos_sensor::ABEncoder for EspPulsCounter {
 //             ..Default::default()
 //         })
 //         .unwrap();
-// 
+//
 //         println!("setup channel 0");
 //         let mut ch0 = u0.get_channel(channel::Number::Channel0);
-// 
+//
 //         ch0.configure(
 //             PcntSource::from_pin(pin_a),
 //             PcntSource::from_pin(pin_b),
@@ -267,7 +268,7 @@ impl sfoc_rs::base_traits::pos_sensor::ABEncoder for EspPulsCounter {
 //                 invert_sig: false,
 //             },
 //         );
-// 
+//
 //         println!("setup channel 1");
 //         let mut ch1 = u0.get_channel(channel::Number::Channel1);
 //         ch1.configure(
