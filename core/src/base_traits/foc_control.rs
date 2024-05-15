@@ -53,7 +53,7 @@ pub trait FOController<EncA, EncB, Enc, PhA, PhB, PhC, C>: Sized
 where
     EncA: InputPin,
     EncB: InputPin,
-    Enc: From<(EncA, EncB)> + PosSensor<C>,
+    Enc: PosSensor<C>,
     PhA: SetDutyCycle,
     PhB: SetDutyCycle,
     PhC: SetDutyCycle,

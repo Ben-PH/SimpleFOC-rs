@@ -19,7 +19,7 @@ struct VelocityBook<C: Clock> {
     _pos_prev_ts: Instant<C>,
 }
 
-pub trait ABEncoder<Src>: From<Src> {
+pub trait ABEncoder<A: InputPin, B: InputPin> {
     /// e.g. for esp32, this will be an i32
     type RawOutput;
     fn read(&self) -> Self::RawOutput;
