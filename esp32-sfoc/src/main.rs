@@ -58,11 +58,8 @@ fn main() -> ! {
         peripherals.TIMG0,
         peripherals.MCPWM0,
         peripherals.PCNT,
-        pins.gpio1,
-        pins.gpio2,
-        pins.gpio3,
-        pins.gpio4,
-        pins.gpio5,
+        (pins.gpio1, pins.gpio2, pins.gpio3),
+        (pins.gpio4, pins.gpio5),
     );
 
     let mut v_pid =
@@ -103,11 +100,15 @@ impl<
         timg_choice: impl Peripheral<P = impl TimerGroupInstance> + 'd,
         mcpwm_choice: impl Peripheral<P = PwmOp> + 'd,
         pcnt_periph: impl Peripheral<P = peripherals::PCNT> + 'd,
-        pin_a: impl Peripheral<P = PinA> + 'd,
-        pin_b: impl Peripheral<P = PinB> + 'd,
-        pin_c: impl Peripheral<P = PinC> + 'd,
-        enc_a: impl Peripheral<P = impl esp_hal::gpio::InputPin> + 'd,
-        enc_b: impl Peripheral<P = impl esp_hal::gpio::InputPin> + 'd,
+        motor_pins: (
+            impl Peripheral<P = PinA> + 'd,
+            impl Peripheral<P = PinB> + 'd,
+            impl Peripheral<P = PinC> + 'd,
+        ),
+        encoder_pins: (
+            impl Peripheral<P = impl esp_hal::gpio::InputPin> + 'd,
+            impl Peripheral<P = impl esp_hal::gpio::InputPin> + 'd,
+        ),
     ) -> Self {
         // set up the peripherals for our specific usecase
         let timg0 = TimerGroup::new(timg_choice, &clocks, None);
@@ -123,12 +124,15 @@ impl<
         mcpwm_periph.operator2.set_timer(&mcpwm_periph.timer0);
 
         // Give each operator a pin.
-        let pin_a: PwmPin<'d, PinA, _, 0, true> =
-            mcpwm_periph.operator0.with_pin_a(pin_a, pin_config());
-        let pin_b: PwmPin<'d, PinB, _, 1, true> =
-            mcpwm_periph.operator1.with_pin_a(pin_b, pin_config());
-        let pin_c: PwmPin<'d, PinC, _, 2, true> =
-            mcpwm_periph.operator2.with_pin_a(pin_c, pin_config());
+        let pin_a: PwmPin<'d, PinA, _, 0, true> = mcpwm_periph
+            .operator0
+            .with_pin_a(motor_pins.0, pin_config());
+        let pin_b: PwmPin<'d, PinB, _, 1, true> = mcpwm_periph
+            .operator1
+            .with_pin_a(motor_pins.1, pin_config());
+        let pin_c: PwmPin<'d, PinC, _, 2, true> = mcpwm_periph
+            .operator2
+            .with_pin_a(motor_pins.2, pin_config());
         // Put that into a Triplet. Because the pins meets the impl-constraints for
         // `MotorHiPins` trait, it is now the pin-control driver/object
         let mut motor_triplet = Triplet {
@@ -159,8 +163,8 @@ impl<
 
         let mut pcnt_chann0 = pcnt_unit0.get_channel(channel::Number::Channel0);
         pcnt_chann0.configure(
-            channel::PcntSource::from_pin(enc_a),
-            channel::PcntSource::from_pin(enc_b),
+            channel::PcntSource::from_pin(encoder_pins.0),
+            channel::PcntSource::from_pin(encoder_pins.1),
             channel::Config {
                 lctrl_mode: channel::CtrlMode::Reverse,
                 hctrl_mode: channel::CtrlMode::Keep,
