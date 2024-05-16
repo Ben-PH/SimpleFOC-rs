@@ -327,6 +327,7 @@ dependencies = [
  "fugit",
  "log",
  "sfoc-rs",
+ "typenum",
 ]
 
 [[package]]

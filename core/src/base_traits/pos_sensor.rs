@@ -1,4 +1,3 @@
-use embedded_hal::digital::InputPin;
 use embedded_time::{Clock, Instant};
 
 pub trait PosSensor<C: Clock> {
@@ -24,4 +23,3 @@ pub trait ABEncoder {
     type RawOutput;
     fn read(&self) -> Self::RawOutput;
 }
-

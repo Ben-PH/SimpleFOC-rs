@@ -20,7 +20,10 @@ use esp_hal::{
     Blocking,
 };
 
-use sfoc_rs::{base_traits::bldc_driver::MotorHiPins, common::helpers::Triplet};
+use sfoc_rs::{
+    base_traits::bldc_driver::MotorHiPins, base_traits::PowerSupplyVoltage,
+    common::helpers::Triplet,
+};
 
 struct Timer0<TG: TimerGroupInstance> {
     timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>,
@@ -83,6 +86,10 @@ struct Esp3PWM<'d, PwmOp, PinA, PinB, PinC> {
         PwmPin<'d, PinC, PwmOp, 2, true>,
     >,
     pulse_counter: unit::Unit,
+}
+
+impl<'d, PwmOp, PinA, PinB, PinC> PowerSupplyVoltage for Esp3PWM<'d, PwmOp, PinA, PinB, PinC> {
+    type DeciVolts = typenum::U120;
 }
 
 impl<
@@ -194,8 +201,7 @@ impl<'d, A, B, C, D> sfoc_rs::base_traits::pos_sensor::ABEncoder for Esp3PWM<'d,
     }
 }
 
-impl<'d, PwmOp, A, B, C> sfoc_rs::base_traits::bldc_driver::MotorHiPins
-    for Esp3PWM<'d, PwmOp, A, B, C>
+impl<'d, PwmOp, A, B, C> MotorHiPins for Esp3PWM<'d, PwmOp, A, B, C>
 where
     PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
     PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,

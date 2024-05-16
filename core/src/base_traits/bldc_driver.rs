@@ -1,4 +1,5 @@
 use embedded_hal::pwm::SetDutyCycle;
+use typenum::{IsGreater, True, Unsigned, U0};
 
 use crate::common::helpers::{DutyCycle, Triplet};
 
@@ -9,9 +10,21 @@ pub struct PhaseState {
     pub lo_side: bool,
 }
 
-pub trait MotorHiPins: Sized {
+pub trait MotorHiPins {
     fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle);
     fn set_zero(&mut self);
+}
+pub trait VLimitedHiPins: MotorHiPins {
+    /// TODO: go nightly, or wait for assosciated type defaults to stabalise, and set this to 120
+    /// This is Deci-volts. easier than setting up a fixed point setup.
+    /// If the scale here changes, account for the notion of users over-volting.
+    type DeciVLimit: Unsigned + IsGreater<U0, Output = True>;
+    #[allow(unused_variables)]
+    #[allow(unreachable_code)]
+    fn set_limited_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle) {
+        todo!("do the voltage clamp thing here");
+        <Self as MotorHiPins>::set_pwms(self, dc_a, dc_b, dc_c)
+    }
 }
 
 impl<A: SetDutyCycle, B: SetDutyCycle, C: SetDutyCycle> MotorHiPins for Triplet<A, B, C> {
@@ -39,24 +52,3 @@ impl<A: SetDutyCycle, B: SetDutyCycle, C: SetDutyCycle> MotorHiPins for Triplet<
         let _ = SetDutyCycle::set_duty_cycle_fully_off(&mut self.member_a);
     }
 }
-
-// impl<A: SetDutyCycle, B: SetDutyCycle, C: SetDutyCycle> WriteDutyCycles for Triplet<A, B, C> {
-//     type SetError = ();
-//     fn write_pwm_duty(
-//         &mut self,
-//         duty_a: DutyCycle,
-//         duty_b: DutyCycle,
-//         duty_c: DutyCycle,
-//     ) -> Result<(), Self::SetError> {
-//         self.member_a
-//             .set_duty_cycle_fraction(duty_a.numer(), duty_a.denom().into())
-//             .map_err(|_| ())?;
-//         self.member_b
-//             .set_duty_cycle_fraction(duty_b.numer(), duty_b.denom().into())
-//             .map_err(|_| ())?;
-//         self.member_c
-//             .set_duty_cycle_fraction(duty_c.numer(), duty_c.denom().into())
-//             .map_err(|_| ())?;
-//         Ok(())
-//     }
-// }
