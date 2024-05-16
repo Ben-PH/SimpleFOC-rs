@@ -42,6 +42,10 @@ impl<TG: TimerGroupInstance> embedded_time::Clock for Timer0<TG> {
     }
 }
 
+// TODOs:
+// - Encapsulate voltage power supply
+// - Encapsulate pid
+// - Encapsulate voltage limit
 #[entry]
 fn main() -> ! {
     let peripherals = Peripherals::take();
