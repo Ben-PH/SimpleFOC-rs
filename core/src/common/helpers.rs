@@ -14,6 +14,7 @@ pub struct Current(pub f32);
 pub struct Voltage(pub f32);
 pub struct DutyCycle(pub f32);
 
+
 /// Encapsulates the common pattern of three-way-coupling in 3-phase motors.
 /// E.g. 3 pairs of pins to control an h-bridge. ADC reader pins. etc.
 pub struct Triplet<A, B, C> {

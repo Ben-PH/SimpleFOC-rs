@@ -16,6 +16,8 @@ esp-backtrace = { version = "0.11.0", features = [
 ] }
 esp-hal = { version = "0.17.0", features = [ "esp32" ] }
 esp-println = { version = "0.9.0", features = ["esp32", "log"] }
+fixed = "1.27.0"
+foc = "0.2.0"
 fugit = "0.3.7"
 log = { version = "0.4.20" }
 sfoc-rs = {path = "../core"}

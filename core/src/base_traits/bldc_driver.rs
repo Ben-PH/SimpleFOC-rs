@@ -29,20 +29,17 @@ pub trait VLimitedHiPins: MotorHiPins {
 
 impl<A: SetDutyCycle, B: SetDutyCycle, C: SetDutyCycle> MotorHiPins for Triplet<A, B, C> {
     fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle) {
-        let _ = SetDutyCycle::set_duty_cycle_fraction(
+        let _ = SetDutyCycle::set_duty_cycle_percent(
             &mut self.member_a,
-            dc_a.numer(),
-            dc_a.denom().into(),
+            (dc_a.0 * 100.0) as u8
         );
-        let _ = SetDutyCycle::set_duty_cycle_fraction(
+        let _ = SetDutyCycle::set_duty_cycle_percent(
             &mut self.member_b,
-            dc_b.numer(),
-            dc_b.denom().into(),
+            (dc_b.0 * 100.0) as u8
         );
-        let _ = SetDutyCycle::set_duty_cycle_fraction(
+        let _ = SetDutyCycle::set_duty_cycle_percent(
             &mut self.member_c,
-            dc_c.numer(),
-            dc_c.denom().into(),
+            (dc_c.0 * 100.0) as u8
         );
     }
 

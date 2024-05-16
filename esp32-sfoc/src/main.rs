@@ -20,8 +20,13 @@ use esp_hal::{
     Blocking,
 };
 
+use fixed::types::I16F16;
 use sfoc_rs::{
-    base_traits::bldc_driver::MotorHiPins, base_traits::PowerSupplyVoltage,
+    base_traits::{
+        bldc_driver::MotorHiPins,
+        foc_control::{FOController, PhaseAngle},
+        PowerSupplyVoltage,
+    },
     common::helpers::Triplet,
 };
 
@@ -60,7 +65,7 @@ fn main() -> ! {
     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
     let pins = io.pins;
 
-    let _driver = Esp3PWM::new(
+    let mut driver = Esp3PWM::new(
         &clocks,
         peripherals.TIMG0,
         peripherals.MCPWM0,
@@ -69,11 +74,13 @@ fn main() -> ! {
         (pins.gpio4, pins.gpio5),
     );
 
-    let mut v_pid =
-        sfoc_rs::common::types::VelocityPID(sfoc_rs::pid_reexported::Pid::new(0.0, 6.0));
-    v_pid.0.kp = 0.2;
-    v_pid.0.ki = 2.0;
-    v_pid.0.kd = 0.0;
+    driver.set_phase_voltage(
+        foc::park_clarke::MovingReferenceFrame {
+            d: I16F16::ZERO,
+            q: I16F16::ONE,
+        },
+        PhaseAngle(I16F16::PI),
+    );
 
     loop {}
 }
@@ -199,6 +206,14 @@ impl<'d, A, B, C, D> sfoc_rs::base_traits::pos_sensor::ABEncoder for Esp3PWM<'d,
     fn read(&self) -> Self::RawOutput {
         self.pulse_counter.get_value()
     }
+}
+
+impl<'d, PwmOp, A, B, C> FOController for Esp3PWM<'d, PwmOp, A, B, C>
+where
+    PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
+    PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,
+    PwmPin<'d, C, PwmOp, 2, true>: SetDutyCycle,
+{
 }
 
 impl<'d, PwmOp, A, B, C> MotorHiPins for Esp3PWM<'d, PwmOp, A, B, C>
