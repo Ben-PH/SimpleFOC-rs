@@ -24,3 +24,4 @@ pub trait ABEncoder {
     type RawOutput;
     fn read(&self) -> Self::RawOutput;
 }
+

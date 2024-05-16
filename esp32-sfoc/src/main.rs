@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 
-use embedded_hal::digital::OutputPin;
+use embedded_hal::pwm::SetDutyCycle;
 use embedded_time::{rate::Fraction, Instant};
 use esp_backtrace as _;
 use esp_hal::{
@@ -12,9 +12,9 @@ use esp_hal::{
         timer::PwmWorkingMode,
         PeripheralClockConfig, PwmPeripheral, MCPWM,
     },
-    pcnt::unit::Unit,
+    pcnt::{channel, unit, PCNT},
     peripheral::Peripheral,
-    peripherals::{Peripherals, MCPWM0, PCNT},
+    peripherals::{self, Peripherals},
     prelude::*,
     timer::{Enable, TimerGroup, TimerGroupInstance},
     Blocking,
@@ -74,23 +74,14 @@ fn main() -> ! {
     loop {}
 }
 
-struct Esp3PWM<
-    'd,
-    PwmOp: PwmPeripheral,
-    PinA,
-    PinB,
-    PinC,
-    EncA: esp_hal::gpio::InputPin,
-    EncB: esp_hal::gpio::InputPin,
-> {
+struct Esp3PWM<'d, PwmOp, PinA, PinB, PinC> {
     // mcpwm_periph: MCPWM<'d, PwmOp>,
     motor_triplet: Triplet<
         PwmPin<'d, PinA, PwmOp, 0, true>,
         PwmPin<'d, PinB, PwmOp, 1, true>,
         PwmPin<'d, PinC, PwmOp, 2, true>,
     >,
-    enc_a: EncA,
-    enc_b: EncB,
+    pulse_counter: unit::Unit,
 }
 
 impl<
@@ -99,9 +90,7 @@ impl<
         PinA: esp_hal::gpio::OutputPin,
         PinB: esp_hal::gpio::OutputPin,
         PinC: esp_hal::gpio::OutputPin,
-        EncA: esp_hal::gpio::InputPin,
-        EncB: esp_hal::gpio::InputPin,
-    > Esp3PWM<'d, PwmOp, PinA, PinB, PinC, EncA, EncB>
+    > Esp3PWM<'d, PwmOp, PinA, PinB, PinC>
 {
     /// Takes in the peripherals needed in order run a motor:
     ///  - pin_a/b/c: These pins will be attached to the mcpwm peripheral
@@ -113,12 +102,12 @@ impl<
         clocks: &Clocks<'_>,
         timg_choice: impl Peripheral<P = impl TimerGroupInstance> + 'd,
         mcpwm_choice: impl Peripheral<P = PwmOp> + 'd,
-        _pcnt: impl Peripheral<P = PCNT> + 'd,
+        pcnt_periph: impl Peripheral<P = peripherals::PCNT> + 'd,
         pin_a: impl Peripheral<P = PinA> + 'd,
         pin_b: impl Peripheral<P = PinB> + 'd,
         pin_c: impl Peripheral<P = PinC> + 'd,
-        enc_a: EncA,
-        enc_b: EncB,
+        enc_a: impl Peripheral<P = impl esp_hal::gpio::InputPin> + 'd,
+        enc_b: impl Peripheral<P = impl esp_hal::gpio::InputPin> + 'd,
     ) -> Self {
         // set up the peripherals for our specific usecase
         let timg0 = TimerGroup::new(timg_choice, &clocks, None);
@@ -158,72 +147,62 @@ impl<
         // Let's get the party started.
         mcpwm_periph.timer0.start(pw_timer_cfg);
 
+        let pcnt = PCNT::new(pcnt_periph, None);
+        let mut pcnt_unit0 = pcnt.get_unit(unit::Number::Unit0);
+        pcnt_unit0
+            .configure(unit::Config {
+                low_limit: -100,
+                high_limit: 100,
+                ..Default::default()
+            })
+            .unwrap();
+
+        let mut pcnt_chann0 = pcnt_unit0.get_channel(channel::Number::Channel0);
+        pcnt_chann0.configure(
+            channel::PcntSource::from_pin(enc_a),
+            channel::PcntSource::from_pin(enc_b),
+            channel::Config {
+                lctrl_mode: channel::CtrlMode::Reverse,
+                hctrl_mode: channel::CtrlMode::Keep,
+                pos_edge: channel::EdgeMode::Decrement,
+                neg_edge: channel::EdgeMode::Increment,
+                invert_ctrl: false,
+                invert_sig: false,
+            },
+        );
+
         Self {
             motor_triplet,
-            enc_a,
-            enc_b,
+            pulse_counter: pcnt_unit0,
         }
     }
 }
 
-struct _EspPulsCounter {
-    _reader_periph: Unit,
-}
-
-impl sfoc_rs::base_traits::pos_sensor::ABEncoder for _EspPulsCounter {
+impl<'d, A, B, C, D> sfoc_rs::base_traits::pos_sensor::ABEncoder for Esp3PWM<'d, A, B, C, D> {
     type RawOutput = i16;
 
     fn read(&self) -> Self::RawOutput {
-        todo!()
+        self.pulse_counter.get_value()
     }
 }
 
-// impl<'d> EspPulsCounter {
-//     fn new(
-//         pcnt_periph: PCNT,
-//         pin_a: impl Peripheral<P = impl esp_hal::gpio::InputPin> + 'd,
-//         pin_b: impl Peripheral<P = impl esp_hal::gpio::InputPin> + 'd,
-//     ) -> Self {
-//         let mut u0 = pcnt_periph.get_unit(unit::Number::Unit0);
-//         u0.configure(unit::Config {
-//             low_limit: i16::MIN,
-//             high_limit: i16::MAX,
-//             filter: None,
-//             ..Default::default()
-//         })
-//         .unwrap();
-//
-//         println!("setup channel 0");
-//         let mut ch0 = u0.get_channel(channel::Number::Channel0);
-//
-//         ch0.configure(
-//             PcntSource::from_pin(pin_a),
-//             PcntSource::from_pin(pin_b),
-//             channel::Config {
-//                 lctrl_mode: channel::CtrlMode::Reverse,
-//                 hctrl_mode: channel::CtrlMode::Keep,
-//                 pos_edge: channel::EdgeMode::Decrement,
-//                 neg_edge: channel::EdgeMode::Increment,
-//                 invert_ctrl: false,
-//                 invert_sig: false,
-//             },
-//         );
-//
-//         println!("setup channel 1");
-//         let mut ch1 = u0.get_channel(channel::Number::Channel1);
-//         ch1.configure(
-//             PcntSource::from_pin(pin_b),
-//             PcntSource::from_pin(pin_a),
-//             channel::Config {
-//                 lctrl_mode: channel::CtrlMode::Reverse,
-//                 hctrl_mode: channel::CtrlMode::Keep,
-//                 pos_edge: channel::EdgeMode::Increment,
-//                 neg_edge: channel::EdgeMode::Decrement,
-//                 invert_ctrl: false,
-//                 invert_sig: false,
-//             },
-//         );
-//         let ticks: i16 = u0.get_value();
-//         Self { reader_periph: u0 }
-//     }
-// }
+impl<'d, PwmOp, A, B, C> sfoc_rs::base_traits::bldc_driver::MotorHiPins
+    for Esp3PWM<'d, PwmOp, A, B, C>
+where
+    PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
+    PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,
+    PwmPin<'d, C, PwmOp, 2, true>: SetDutyCycle,
+{
+    fn set_pwms(
+        &mut self,
+        dc_a: sfoc_rs::common::helpers::DutyCycle,
+        dc_b: sfoc_rs::common::helpers::DutyCycle,
+        dc_c: sfoc_rs::common::helpers::DutyCycle,
+    ) {
+        self.motor_triplet.set_pwms(dc_a, dc_b, dc_c)
+    }
+
+    fn set_zero(&mut self) {
+        self.motor_triplet.set_zero()
+    }
+}
