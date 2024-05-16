@@ -33,7 +33,7 @@ mod initial_config {
 use embedded_hal::{digital::InputPin, pwm::SetDutyCycle};
 use embedded_time::Clock;
 use initial_config::*;
-use sfoc_rs::{base_traits::foc_control::FOController, common::helpers::PinTriplet};
+use sfoc_rs::{base_traits::foc_control::FOController, common::helpers::Triplet};
 
 // as it currently stands, the user will need to use platform specific code to get the right pins.
 // This can very in complexity, but the goal is to make it
@@ -53,7 +53,7 @@ use sfoc_rs::{base_traits::foc_control::FOController, common::helpers::PinTriple
 //         pins.gpio2.into_pull_up_input(),
 //     );
 //
-//     let motor_pins = PinTriplet {
+//     let motor_pins = Triplet {
 //         phase_a: pins.gpio3,
 //         phase_a: pins.gpio4,
 //         phase_a: pins.gpio5,
@@ -72,7 +72,7 @@ fn entry<
     PA: SetDutyCycle,
     PB: SetDutyCycle,
     PC: SetDutyCycle,
-    MPinSource: Into<PinTriplet<PA, PB, PC>>,
+    MPinSource: Into<Triplet<PA, PB, PC>>,
     EncA: InputPin,
     EncB: InputPin,
 >(
@@ -83,12 +83,12 @@ fn entry<
     // ...my thinking being is that the hardware support library defines how the pins are made
     // available/initialised. e.g.:
     // ```
-    // impl From<$PINS> for `PinTriplet<...> {
+    // impl From<$PINS> for `Triplet<...> {
     //     fn into(...) -> ... {
     //         $hw-specific-conversions-here
     //     }
     // }
-    let motor_pins: PinTriplet<PA, PB, PC> = motor_pins.into();
+    let motor_pins: Triplet<PA, PB, PC> = motor_pins.into();
 
     // Ideally, this `Placeholder` type would encapsulate specific implementations, such as BLDC(4/6)/Stepper(2/4) and platform. That's a fair way away, at least for now, and not so sure what that will look like. Key points of this comment:
     //  - Platform selection (i.e. which MCU to use) is aliased/abstracted/etc out of user-code almost entirely.

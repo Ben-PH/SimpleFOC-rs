@@ -33,11 +33,20 @@ impl DutyCycle {
     }
 }
 
-/// A convenience wrapper for a collection of pins. E.g.
-pub struct PinTriplet<A, B, C> {
-    pub pin_a: A,
-    pub pin_b: B,
-    pub pin_c: C,
+/// Encapsulates the common pattern of three-way-coupling in 3-phase motors.
+/// E.g. 3 pairs of pins to control an h-bridge. ADC reader pins. etc.
+pub struct Triplet<A, B, C> {
+    pub member_a: A,
+    pub member_b: B,
+    pub member_c: C,
+}
+
+
+/// Encapsulates the common pattern of two-way-coupling.
+/// E.g. A pin-pair to control each side of an h-bridge, AB encoder pins, etc.
+pub struct Couplet<A, B> {
+    pub member_a: A,
+    pub member_b: B,
 }
 
 pub struct DQCurrent {

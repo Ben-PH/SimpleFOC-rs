@@ -1,11 +1,7 @@
 use embedded_hal::{digital::InputPin, pwm::SetDutyCycle};
 use embedded_time::{duration::Microseconds, Clock};
 
-use crate::{
-    base_traits::bldc_driver::UnimplBLDCDriver,
-    bldc_motor::BLDCMotor,
-    common::{helpers::PinTriplet, types::VelocityPID},
-};
+use crate::common::{helpers::Triplet, types::VelocityPID};
 
 use super::pos_sensor::PosSensor;
 
@@ -61,7 +57,7 @@ where
 {
     fn init_fo_control(
         enc_pins: (EncA, EncB),
-        bldc3_pins: PinTriplet<PhA, PhB, PhC>,
+        bldc3_pins: Triplet<PhA, PhB, PhC>,
         velocity_pid: VelocityPID,
         time_source: C,
     ) -> Result<Self, ()>;
@@ -90,7 +86,7 @@ where
 {
     fn init_fo_control(
         enc_pins: (EncA, EncB),
-        bldc3_pins: PinTriplet<PhA, PhB, PhC>,
+        bldc3_pins: Triplet<PhA, PhB, PhC>,
         velocity_pid: VelocityPID,
         time_source: C,
     ) -> Result<Self, ()> {

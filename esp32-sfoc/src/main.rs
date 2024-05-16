@@ -1,12 +1,12 @@
 #![no_std]
 #![no_main]
 
-use embedded_hal::{digital::OutputPin, pwm::SetDutyCycle};
+use embedded_hal::digital::OutputPin;
 use embedded_time::{rate::Fraction, Instant};
 use esp_backtrace as _;
 use esp_hal::{
     clock::{ClockControl, Clocks},
-    gpio::{GpioPin, Input, PullUp, IO},
+    gpio::IO,
     mcpwm::{
         operator::{PwmActions, PwmPin, PwmPinConfig, PwmUpdateMethod},
         timer::PwmWorkingMode,
@@ -20,7 +20,7 @@ use esp_hal::{
     Blocking,
 };
 
-use sfoc_rs::{base_traits::bldc_driver::BLDCDriver, common::helpers::PinTriplet};
+use sfoc_rs::{base_traits::bldc_driver::MotorHiPins, common::helpers::Triplet};
 
 struct Timer0<TG: TimerGroupInstance> {
     timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>,
@@ -77,16 +77,18 @@ fn main() -> ! {
 struct Esp3PWM<
     'd,
     PwmOp: PwmPeripheral,
-    PinA: esp_hal::gpio::OutputPin,
-    PinB: esp_hal::gpio::OutputPin,
-    PinC: esp_hal::gpio::OutputPin,
+    PinA,
+    PinB,
+    PinC,
     EncA: esp_hal::gpio::InputPin,
     EncB: esp_hal::gpio::InputPin,
 > {
     // mcpwm_periph: MCPWM<'d, PwmOp>,
-    pin_a: PwmPin<'d, PinA, PwmOp, 0, true>,
-    pin_b: PwmPin<'d, PinB, PwmOp, 1, true>,
-    pin_c: PwmPin<'d, PinC, PwmOp, 2, true>,
+    motor_triplet: Triplet<
+        PwmPin<'d, PinA, PwmOp, 0, true>,
+        PwmPin<'d, PinB, PwmOp, 1, true>,
+        PwmPin<'d, PinC, PwmOp, 2, true>,
+    >,
     enc_a: EncA,
     enc_b: EncB,
 }
@@ -101,6 +103,12 @@ impl<
         EncB: esp_hal::gpio::InputPin,
     > Esp3PWM<'d, PwmOp, PinA, PinB, PinC, EncA, EncB>
 {
+    /// Takes in the peripherals needed in order run a motor:
+    ///  - pin_a/b/c: These pins will be attached to the mcpwm peripheral
+    ///  - enc_a/b: these pins will be attached to the PCNT peripheral.
+    ///  - esp32 has two timer groups and two mcpwm peripherals. you can pass in one of either
+    ///  - the timer group will use one of its timers for the mcpwm operators.
+    ///
     fn new(
         clocks: &Clocks<'_>,
         timg_choice: impl Peripheral<P = impl TimerGroupInstance> + 'd,
@@ -112,114 +120,49 @@ impl<
         enc_a: EncA,
         enc_b: EncB,
     ) -> Self {
+        // set up the peripherals for our specific usecase
         let timg0 = TimerGroup::new(timg_choice, &clocks, None);
         let _time_src = Timer0::init(timg0.timer0);
         let clock_cfg = PeripheralClockConfig::with_frequency(&clocks, 40.MHz()).unwrap();
 
+        // Boiler-plate configuration...
         let pin_config =
             || PwmPinConfig::<true>::new(PwmActions::empty(), PwmUpdateMethod::empty());
         let mut mcpwm_periph = MCPWM::new(mcpwm_choice, clock_cfg);
         mcpwm_periph.operator0.set_timer(&mcpwm_periph.timer0);
         mcpwm_periph.operator1.set_timer(&mcpwm_periph.timer0);
         mcpwm_periph.operator2.set_timer(&mcpwm_periph.timer0);
+
+        // Give each operator a pin.
         let pin_a: PwmPin<'d, PinA, _, 0, true> =
             mcpwm_periph.operator0.with_pin_a(pin_a, pin_config());
         let pin_b: PwmPin<'d, PinB, _, 1, true> =
             mcpwm_periph.operator1.with_pin_a(pin_b, pin_config());
         let pin_c: PwmPin<'d, PinC, _, 2, true> =
             mcpwm_periph.operator2.with_pin_a(pin_c, pin_config());
+        // Put that into a Triplet. Because the pins meets the impl-constraints for
+        // `MotorHiPins` trait, it is now the pin-control driver/object
+        let mut motor_triplet = Triplet {
+            member_a: pin_a,
+            member_b: pin_b,
+            member_c: pin_c,
+        };
+        MotorHiPins::set_zero(&mut motor_triplet);
 
+        // We want middle-out. I don't know about the pre-scaler or freq settings, but this is my
+        // best initial guess
         let pw_timer_cfg = clock_cfg
             .timer_clock_with_frequency(99, PwmWorkingMode::UpDown, 20.kHz())
             .unwrap();
+
+        // Let's get the party started.
         mcpwm_periph.timer0.start(pw_timer_cfg);
 
-        let res = Self {
-            // mcpwm_periph,
-            pin_a,
-            pin_b,
-            pin_c,
+        Self {
+            motor_triplet,
             enc_a,
             enc_b,
-        };
-        // res.disable();
-        res
-    }
-}
-
-impl<
-        'd,
-        PwmOp: PwmPeripheral,
-        PinA: SetDutyCycle + esp_hal::gpio::OutputPin,
-        PinB: SetDutyCycle + esp_hal::gpio::OutputPin,
-        PinC: SetDutyCycle + esp_hal::gpio::OutputPin,
-        EncA: esp_hal::gpio::InputPin,
-        EncB: esp_hal::gpio::InputPin,
-    > BLDCDriver for Esp3PWM<'d, PwmOp, PinA, PinB, PinC, EncA, EncB>
-{
-    fn enable(&mut self) {
-        todo!()
-    }
-    fn disable(&mut self) {
-        todo!()
-    }
-    fn set_pwms(
-        &mut self,
-        dc_a: sfoc_rs::common::helpers::DutyCycle,
-        dc_b: sfoc_rs::common::helpers::DutyCycle,
-        dc_c: sfoc_rs::common::helpers::DutyCycle,
-    ) {
-        let _ = SetDutyCycle::set_duty_cycle_fraction(
-            &mut self.pin_a,
-            dc_a.numer(),
-            dc_a.denom().into(),
-        );
-        let _ = SetDutyCycle::set_duty_cycle_fraction(
-            &mut self.pin_b,
-            dc_b.numer(),
-            dc_b.denom().into(),
-        );
-        let _ = SetDutyCycle::set_duty_cycle_fraction(
-            &mut self.pin_c,
-            dc_c.numer(),
-            dc_c.denom().into(),
-        );
-    }
-    fn set_phase_state(
-        &mut self,
-        _ps_a: sfoc_rs::base_traits::bldc_driver::PhaseState,
-        _ps_b: sfoc_rs::base_traits::bldc_driver::PhaseState,
-        _ps_c: sfoc_rs::base_traits::bldc_driver::PhaseState,
-    ) {
-        todo!()
-    }
-}
-
-fn _init_motor_pins<'d, PA, PB, PC>(
-    pwm_peripheral: impl Peripheral<P = MCPWM0> + 'd,
-    clk_cfg: PeripheralClockConfig,
-    pa: impl Peripheral<P = PA> + 'd,
-    pb: impl Peripheral<P = PB> + 'd,
-    pc: impl Peripheral<P = PC> + 'd,
-) -> PinTriplet<
-    PwmPin<'d, PA, MCPWM0, 0, true>,
-    PwmPin<'d, PB, MCPWM0, 1, true>,
-    PwmPin<'d, PC, MCPWM0, 2, true>,
->
-where
-    PA: OutputPin + esp_hal::gpio::OutputPin,
-    PB: OutputPin + esp_hal::gpio::OutputPin,
-    PC: OutputPin + esp_hal::gpio::OutputPin,
-{
-    let pin_config = || PwmPinConfig::<true>::new(PwmActions::empty(), PwmUpdateMethod::empty());
-    let mcpwm = MCPWM::new(pwm_peripheral, clk_cfg);
-    let pin_a = mcpwm.operator0.with_pin_a(pa, pin_config());
-    let pin_b = mcpwm.operator1.with_pin_a(pb, pin_config());
-    let pin_c = mcpwm.operator2.with_pin_a(pc, pin_config());
-    PinTriplet {
-        pin_a,
-        pin_b,
-        pin_c,
+        }
     }
 }
 
