@@ -1,4 +1,4 @@
-use embedded_time::{Clock, Instant};
+use embedded_time::Clock;
 
 pub trait PosSensor<C: Clock> {
     // This would platform-specific compatable. for now, my thinking is based on esp32 pulse-count peripheral
@@ -13,10 +13,6 @@ pub trait PosSensor<C: Clock> {
     // fn update_pos(&mut self);
 }
 
-struct VelocityBook<C: Clock> {
-    pos_prev: u32,
-    _pos_prev_ts: Instant<C>,
-}
 
 pub trait ABEncoder {
     /// e.g. for esp32, this will be an i32

@@ -1,6 +1,6 @@
-use embedded_time::duration::Microseconds;
 use fixed::types::I16F16;
 use foc::park_clarke::MovingReferenceFrame;
+use pid::Pid;
 
 use crate::common::helpers::DutyCycle;
 
@@ -13,13 +13,29 @@ use super::bldc_driver::MotorHiPins;
 /// the physical rotation of the motor for each phase-angle rotation.
 pub struct PhaseAngle(pub I16F16);
 pub struct Newtons(pub f32);
+/// Distance from 0-reference to denote position.
+/// T could be encoder pulses, Millimeters<i32>, etc
+pub struct Displacement<T>(pub T);
+/// Used in the derivitives of Displacement
+pub struct TimeDelta<T>(pub T);
+pub struct Velocity<Dd, Dt> {
+    d_disp: Displacement<Dd>,
+    d_time: TimeDelta<Dt>,
+}
+pub struct Amps(I16F16);
 
-pub enum MotionCtrl {
+
+pub struct QCurrentPID(pub Pid<f32>);
+pub struct DCurrentPID(pub Pid<f32>);
+pub struct VelocityPID(pub Pid<f32>);
+pub struct VoltagePID(pub Pid<f32>);
+pub struct PositionPID(pub Pid<f32>);
+pub enum MotionCtrl<Disp, Time> {
     Force(Newtons),
-    Velocity(PhaseAngle, Microseconds<u32>),
-    Position(PhaseAngle),
-    VelocityOpenLoop(PhaseAngle, Microseconds<u32>),
-    PositionOpenLoop(PhaseAngle),
+    Velocity(Velocity<Disp, Time>),
+    Position(Displacement<Disp>),
+    VelocityOpenLoop(Velocity<Disp, Time>),
+    PositionOpenLoop(Displacement<Disp>),
 }
 pub enum ForceControlType {
     Voltage,
@@ -44,6 +60,20 @@ pub enum FOCModulationType {
     Trapezoid120,
     Trapezoid150,
 }
+
+pub enum PidSetpoints<D, T> {
+    Displacement(Displacement<D>),
+    Velocity(Velocity<D, T>),
+    Current(Amps),
+}
+
+pub trait Motion: Sized {
+    type DisplacementUnits;
+    type IntervalUnits;
+    fn set_motion(&mut self, motion: MotionCtrl<Self::DisplacementUnits, Self::IntervalUnits>); 
+}
+
+
 
 // temporarily hacked to be for a 3pwm bldc motor
 pub trait FOController: Sized + MotorHiPins {

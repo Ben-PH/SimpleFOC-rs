@@ -1,4 +1,3 @@
-use crate::common::types::{DCurrentPID, QCurrentPID, VelocityPID};
 
 #[allow(dead_code)]
 // D: implements the bldc driver
@@ -15,9 +14,6 @@ pub struct BLDCMotor<D> {
     /// rpm needed to traverse `psv` pitches in a minute), as well as linear motor characteristics
     psv: f32,
     phase_inductance: f32,
-    velocity_pid: VelocityPID,
-    current_pid_q: QCurrentPID,
-    current_pid_d: DCurrentPID,
     driver: D,
 }
 

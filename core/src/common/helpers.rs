@@ -14,7 +14,6 @@ pub struct Current(pub f32);
 pub struct Voltage(pub f32);
 pub struct DutyCycle(pub f32);
 
-
 /// Encapsulates the common pattern of three-way-coupling in 3-phase motors.
 /// E.g. 3 pairs of pins to control an h-bridge. ADC reader pins. etc.
 pub struct Triplet<A, B, C> {
@@ -34,6 +33,16 @@ pub struct DQCurrent {
     pub d: Current,
     pub q: Current,
 }
+// alpha beta current structure
+pub struct ABCurrent {
+    pub alpha: Current,
+    pub beta: Current,
+}
+// dq voltage structs
+pub struct DQVoltage {
+    pub d: Voltage,
+    pub q: Voltage,
+}
 #[derive(Default)]
 pub struct PhaseVoltages {
     pub a: Voltage,
@@ -44,14 +53,4 @@ pub struct PhaseCurrent {
     pub a: Current,
     pub b: Current,
     pub c: Current,
-}
-// dq voltage structs
-pub struct DQVoltage {
-    pub d: Voltage,
-    pub q: Voltage,
-}
-// alpha beta current structure
-pub struct ABCurrent {
-    pub alpha: Current,
-    pub beta: Current,
 }
