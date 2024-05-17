@@ -1,4 +1,3 @@
-
 #[allow(dead_code)]
 // D: implements the bldc driver
 pub struct BLDCMotor<D> {

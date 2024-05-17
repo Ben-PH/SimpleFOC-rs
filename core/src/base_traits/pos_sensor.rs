@@ -1,18 +1,8 @@
-use embedded_time::Clock;
-
-pub trait PosSensor<C: Clock> {
-    // This would platform-specific compatable. for now, my thinking is based on esp32 pulse-count peripheral
-    type Peripheral;
-    // TODO: encapsulate the notion of position as a type (mm, radians, encoder increments, etc.
-    /// For determining velocity. use seconds, clock oscilations, etc at your leasure
-    fn position(&mut self, clock: &C) -> u32;
-    fn velocity(&self) -> (u32, u32);
-    // fn acceleration(&self) -> ();
-
-    // for now, assuming an auto-magic update using pulse-counting hardware
-    // fn update_pos(&mut self);
+pub trait PosSensor {
+    type Output;
+    // simplification: interprate as micrometers/microradians for now
+    fn get_position_um(&self) -> Self::Output;
 }
-
 
 pub trait ABEncoder {
     /// e.g. for esp32, this will be an i32
