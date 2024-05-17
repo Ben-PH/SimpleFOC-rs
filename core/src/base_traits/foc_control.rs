@@ -4,6 +4,8 @@ use pid::Pid;
 
 use crate::common::helpers::DutyCycle;
 
+use self::force_paradigms::Newtons;
+
 use super::bldc_driver::MotorHiPins;
 
 /// The describes the position of an inductor in the pitch of the permenant magnetic field, in
@@ -11,37 +13,65 @@ use super::bldc_driver::MotorHiPins;
 /// A linear motor with a 20mm pitch, 10mm from reference zero, the value would be 0.5
 /// A rotary motor with a pitch of 36 degrees, and 9 inductors would have 12 degrees in
 /// the physical rotation of the motor for each phase-angle rotation.
-pub struct PhaseAngle(pub I16F16);
-pub struct Newtons(pub f32);
-/// Distance from 0-reference to denote position.
-/// T could be encoder pulses, Millimeters<i32>, etc
-pub struct Displacement<T>(pub T);
-/// Used in the derivitives of Displacement
-pub struct TimeDelta<T>(pub T);
-pub struct Velocity<Dd, Dt> {
-    d_disp: Displacement<Dd>,
-    d_time: TimeDelta<Dt>,
+
+
+/// These module scopes are effectively a no-op when combined with `use $MODULE_NAME::*`,
+/// It's just handy to compartmentalise. 
+mod force_paradigms {
+    pub struct Voltage(pub f32);
+    pub struct DCCurrent(f32);
+    pub struct FOCCurrent(f32);
+
+    pub trait ForceControlType {}
+    impl ForceControlType for Voltage {}
+    impl ForceControlType for DCCurrent {}
+    impl ForceControlType for FOCCurrent {}
+    pub struct Newtons<FType: ForceControlType>(FType);
 }
+mod positioning_paradigms {
+    use fixed::types::I16F16;
+
+    pub struct PhaseAngle(pub I16F16);
+    /// Distance from 0-reference to denote position.
+    /// T could be encoder pulses, Millimeters<i32>, etc
+    pub struct Displacement<T>(pub T);
+    /// Used in the derivitives of Displacement
+    pub struct TimeDelta<T>(pub T);
+    pub struct Velocity<Dd, Dt> {
+        d_disp: Displacement<Dd>,
+        d_time: TimeDelta<Dt>,
+    }
+}
+pub use positioning_paradigms::PhaseAngle;
+mod pid_types {
+    use pid::Pid;
+
+    pub struct QCurrentPID(pub Pid<f32>);
+    pub struct DCurrentPID(pub Pid<f32>);
+    pub struct VelocityPID(pub Pid<f32>);
+    pub struct VoltagePID(pub Pid<f32>);
+    pub struct PositionPID(pub Pid<f32>);
+}
+use positioning_paradigms::*;
+
+
 pub struct Amps(I16F16);
 
 
-pub struct QCurrentPID(pub Pid<f32>);
-pub struct DCurrentPID(pub Pid<f32>);
-pub struct VelocityPID(pub Pid<f32>);
-pub struct VoltagePID(pub Pid<f32>);
-pub struct PositionPID(pub Pid<f32>);
-pub enum MotionCtrl<Disp, Time> {
-    Force(Newtons),
-    Velocity(Velocity<Disp, Time>),
-    Position(Displacement<Disp>),
-    VelocityOpenLoop(Velocity<Disp, Time>),
-    PositionOpenLoop(Displacement<Disp>),
+mod control_modes {
+    use super::{force_paradigms::{Newtons, ForceControlType}, positioning_paradigms::{Velocity, Displacement}};
+
+    pub trait MotionControlMode {}
+    impl<FType: ForceControlType> MotionControlMode for Newtons<FType> {}
+    // todo: use fixed point. stuck with f32 in the meantime due to pid crate
+    impl MotionControlMode for Velocity<f32, f32> {}
+    impl MotionControlMode for Displacement<f32> {}
+    // todo: open loop velocity and displacement
 }
-pub enum ForceControlType {
-    Voltage,
-    DCCurrent,
-    FOCCurrent,
-}
+use control_modes::*;
+
+// TODO: these varients determine behavior, and deserve to be encapsulated using type-state
+// patterns
 pub enum FOCMotorStatus {
     Uninit,
     Initting,
@@ -67,10 +97,14 @@ pub enum PidSetpoints<D, T> {
     Current(Amps),
 }
 
-pub trait Motion: Sized {
-    type DisplacementUnits;
-    type IntervalUnits;
-    fn set_motion(&mut self, motion: MotionCtrl<Self::DisplacementUnits, Self::IntervalUnits>); 
+pub trait MotionControl: Sized {
+    type Mode: MotionControlMode;
+    fn set_motion(&mut self, motion: Self::Mode); 
+}
+
+
+fn set_motion_impl<M: MotionControl<Mode = Displacement<f32>>>() {
+    todo!("I think this should be part of a default motion struct?");
 }
 
 
