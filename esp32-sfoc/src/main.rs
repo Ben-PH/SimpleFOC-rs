@@ -18,14 +18,15 @@ use esp_hal::{
     peripheral::Peripheral,
     peripherals::{self, Peripherals},
     prelude::*,
-    timer::{TimerGroup, TimerGroupInstance, Enable}, Blocking,
+    timer::{Enable, TimerGroup, TimerGroupInstance},
+    Blocking,
 };
 
 use fixed::types::I16F16;
 use sfoc_rs::{
     base_traits::{
         bldc_driver::MotorHiPins,
-        foc_control::{FOController, PhaseAngle, DefaultMotionCtrl, MotionTracker, MotionControl},
+        foc_control::{DefaultMotionCtrl, FOController, MotionControl, MotionTracker, PhaseAngle},
         PowerSupplyVoltage,
     },
     common::helpers::Triplet,
@@ -41,9 +42,6 @@ struct EncoderPosn {
     gate_count: u16,
 }
 
-
-
-
 impl counters::Counter for EncoderPosn {
     type RawData = i16;
     type CountMeasure = i16;
@@ -55,10 +53,7 @@ impl counters::Counter for EncoderPosn {
     fn raw_to_measure(from: Self::RawData) -> Self::CountMeasure {
         todo!("Each pulse should be scaled by a distance here")
     }
-
-    
 }
-    
 
 #[esp_hal::entry]
 fn main() -> ! {
@@ -95,7 +90,6 @@ fn main() -> ! {
         PhaseAngle(I16F16::PI),
     );
     MotorHiPins::set_zero(&mut driver);
-
 
     loop {}
 }
@@ -149,7 +143,17 @@ impl<
         PinB: esp_hal::gpio::OutputPin,
         PinC: esp_hal::gpio::OutputPin,
         T: TimerGroupInstance,
-    > Esp3PWM<'d, PwmOp, PinA, PinB, PinC, EncoderPosn, TimerGroup<'d, T, Blocking>, DefaultMotionCtrl<Timer0<T>, EncoderPosn>>
+    >
+    Esp3PWM<
+        'd,
+        PwmOp,
+        PinA,
+        PinB,
+        PinC,
+        EncoderPosn,
+        TimerGroup<'d, T, Blocking>,
+        DefaultMotionCtrl<Timer0<T>, EncoderPosn>,
+    >
 {
     /// Takes in the peripherals needed in order run a motor:
     ///  - pin_a/b/c: These pins will be attached to the mcpwm peripheral
@@ -236,7 +240,11 @@ impl<
                 invert_sig: false,
             },
         );
-        let posn = EncoderPosn { unit: pcnt_unit0, roll_count: 0, gate_count: 0 };
+        let posn = EncoderPosn {
+            unit: pcnt_unit0,
+            roll_count: 0,
+            gate_count: 0,
+        };
         let motion_tracker = MotionTracker::init(
             time_src,
             time_src.try_now_raw().unwrap_or_else(|_| panic!("")),
@@ -246,15 +254,15 @@ impl<
 
         Self {
             motor_triplet,
-            motion_ctrl: sfoc_rs::base_traits::foc_control::DefaultMotionCtrl::new(None, motion_tracker),
+            motion_ctrl: sfoc_rs::base_traits::foc_control::DefaultMotionCtrl::new(
+                None,
+                motion_tracker,
+            ),
             time_src: PhantomData,
-            pulse_counter: PhantomData
+            pulse_counter: PhantomData,
         }
-
-
     }
 }
-
 
 impl<'d, PwmOp, A, B, C, Pos, Tim, M> FOController for Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim, M>
 where
@@ -285,5 +293,5 @@ where
 }
 
 // impl<'d, PwmOp, PinA, PinB, PinC, Pos, Tim> Motion for Esp3PWM<'d, PwmOp, PinA, PinB, PinC, Pos, Tim> {
-// 
+//
 // }
