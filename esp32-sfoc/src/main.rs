@@ -2,7 +2,6 @@
 #![no_main]
 
 use embedded_hal::pwm::SetDutyCycle;
-use embedded_time::{rate::Fraction, Instant};
 use esp_backtrace as _;
 use esp_hal::{
     clock::{ClockControl, Clocks},
@@ -16,8 +15,7 @@ use esp_hal::{
     peripheral::Peripheral,
     peripherals::{self, Peripherals},
     prelude::*,
-    timer::{Enable, TimerGroup, TimerGroupInstance},
-    Blocking,
+    timer::{TimerGroup, TimerGroupInstance, Enable}, Blocking,
 };
 
 use fixed::types::I16F16;
@@ -30,38 +28,42 @@ use sfoc_rs::{
     common::helpers::Triplet,
 };
 
-struct Timer0<TG: TimerGroupInstance> {
-    timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>,
+/// micrometers for each pulse
+struct EncoderPosn {
+    // the underlying esp32 pulse count reader
+    unit: unit::Unit,
+    // TODO: setup the unit interupt handler to track this in the background
+    roll_count: u16,
+    // TODO: setup the unit interupt handler to track this in the background
+    gate_count: u16,
 }
 
-impl<TG: TimerGroupInstance> Timer0<TG> {
-    fn init(timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>) -> Self {
-        timer.enable_peripheral();
-        Self { timer }
+
+
+
+impl counters::Counter for EncoderPosn {
+    type RawData = i16;
+    type CountMeasure = i16;
+    type Error = ();
+    fn try_read_raw(&self) -> Result<Self::RawData, Self::Error> {
+        Ok(self.unit.get_value())
     }
-}
-impl<TG: TimerGroupInstance> embedded_time::Clock for Timer0<TG> {
-    type T = u64;
 
-    const SCALING_FACTOR: Fraction = <Fraction>::new(1, 80_000_000);
-
-    fn try_now(&self) -> Result<embedded_time::Instant<Self>, embedded_time::clock::Error> {
-        Ok(Instant::new(esp_hal::timer::Instance::now(&*self.timer)))
+    fn raw_to_measure(from: Self::RawData) -> Self::CountMeasure {
+        todo!("Each pulse should be scaled by a distance here")
     }
-}
 
-// TODOs:
-// - Encapsulate voltage power supply
-// - Encapsulate pid
-// - Encapsulate voltage limit
-#[entry]
+    
+}
+    
+
+#[esp_hal::entry]
 fn main() -> ! {
     let peripherals = Peripherals::take();
     let system = peripherals.SYSTEM.split();
     let clock_ctrl = ClockControl::boot_defaults(system.clock_control);
     let clocks: Clocks = clock_ctrl.freeze();
 
-    // Set GPIO0 as an output, and set its state high initially.
     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
     let pins = io.pins;
 
@@ -81,21 +83,58 @@ fn main() -> ! {
         },
         PhaseAngle(I16F16::PI),
     );
+    FOController::set_phase_voltage(
+        &mut driver,
+        foc::park_clarke::MovingReferenceFrame {
+            d: I16F16::ZERO,
+            q: I16F16::ONE,
+        },
+        PhaseAngle(I16F16::PI),
+    );
+    MotorHiPins::set_zero(&mut driver);
+
 
     loop {}
 }
 
-struct Esp3PWM<'d, PwmOp, PinA, PinB, PinC> {
+struct Esp3PWM<'d, PwmOp, PinA, PinB, PinC, Pos, Tim> {
     // mcpwm_periph: MCPWM<'d, PwmOp>,
     motor_triplet: Triplet<
         PwmPin<'d, PinA, PwmOp, 0, true>,
         PwmPin<'d, PinB, PwmOp, 1, true>,
         PwmPin<'d, PinC, PwmOp, 2, true>,
     >,
-    pulse_counter: unit::Unit,
+    pulse_counter: Pos,
+    time_src: Tim,
 }
 
-impl<'d, PwmOp, PinA, PinB, PinC> PowerSupplyVoltage for Esp3PWM<'d, PwmOp, PinA, PinB, PinC> {
+struct Timer0<TG: TimerGroupInstance> {
+    timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>,
+}
+
+impl<TG: TimerGroupInstance> Timer0<TG> {
+    fn init(timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>) -> Self {
+        timer.enable_peripheral();
+        Self { timer }
+    }
+}
+impl<TG: TimerGroupInstance> counters::TimeCount for Timer0<TG> {
+    type RawData = u64;
+    type TickMeasure = fugit::Instant<u64, 1, 80_000_000>;
+    type Error = ();
+
+    fn try_now_raw(&self) -> Result<Self::RawData, Self::Error> {
+        Ok(self.timer.now())
+    }
+
+    fn try_now(&self) -> Result<Self::TickMeasure, Self::Error> {
+        Ok(Self::TickMeasure::from_ticks(self.try_now_raw()?))
+    }
+}
+
+impl<'d, PwmOp, PinA, PinB, PinC, Pos, Tim> PowerSupplyVoltage
+    for Esp3PWM<'d, PwmOp, PinA, PinB, PinC, Pos, Tim>
+{
     type DeciVolts = typenum::U120;
 }
 
@@ -105,7 +144,8 @@ impl<
         PinA: esp_hal::gpio::OutputPin,
         PinB: esp_hal::gpio::OutputPin,
         PinC: esp_hal::gpio::OutputPin,
-    > Esp3PWM<'d, PwmOp, PinA, PinB, PinC>
+        T: TimerGroupInstance,
+    > Esp3PWM<'d, PwmOp, PinA, PinB, PinC, EncoderPosn, TimerGroup<'d, T, Blocking>>
 {
     /// Takes in the peripherals needed in order run a motor:
     ///  - pin_a/b/c: These pins will be attached to the mcpwm peripheral
@@ -115,7 +155,7 @@ impl<
     ///
     fn new(
         clocks: &Clocks<'_>,
-        timg_choice: impl Peripheral<P = impl TimerGroupInstance> + 'd,
+        timg_choice: impl Peripheral<P = T> + 'd,
         mcpwm_choice: impl Peripheral<P = PwmOp> + 'd,
         pcnt_periph: impl Peripheral<P = peripherals::PCNT> + 'd,
         motor_pins: (
@@ -130,7 +170,7 @@ impl<
     ) -> Self {
         // set up the peripherals for our specific usecase
         let timg0 = TimerGroup::new(timg_choice, &clocks, None);
-        let _time_src = Timer0::init(timg0.timer0);
+        let time_src = Timer0::init(timg0.timer0);
         let clock_cfg = PeripheralClockConfig::with_frequency(&clocks, 40.MHz()).unwrap();
 
         // Boiler-plate configuration...
@@ -195,20 +235,23 @@ impl<
 
         Self {
             motor_triplet,
-            pulse_counter: pcnt_unit0,
+            pulse_counter: EncoderPosn {unit: pcnt_unit0, roll_count: 0, gate_count: 0},
+            time_src: timg0
         }
     }
 }
 
-impl<'d, A, B, C, D> sfoc_rs::base_traits::pos_sensor::ABEncoder for Esp3PWM<'d, A, B, C, D> {
-    type RawOutput = i16;
+impl<'d, PwmOp, A, B, C, Pos: counters::Counter, Tim> Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim> {
 
-    fn read(&self) -> Self::RawOutput {
-        self.pulse_counter.get_value()
+    fn read(&self) -> Pos::CountMeasure {
+        let Ok(res) = self.pulse_counter.try_read() else {
+            unreachable!()
+        };
+        res
     }
 }
 
-impl<'d, PwmOp, A, B, C> FOController for Esp3PWM<'d, PwmOp, A, B, C>
+impl<'d, PwmOp, A, B, C, Pos, Tim> FOController for Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim>
 where
     PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
     PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,
@@ -216,7 +259,7 @@ where
 {
 }
 
-impl<'d, PwmOp, A, B, C> MotorHiPins for Esp3PWM<'d, PwmOp, A, B, C>
+impl<'d, PwmOp, A, B, C, Pos, Tim> MotorHiPins for Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim>
 where
     PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
     PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,
@@ -235,3 +278,7 @@ where
         self.motor_triplet.set_zero()
     }
 }
+
+// impl<'d, PwmOp, PinA, PinB, PinC, Pos, Tim> Motion for Esp3PWM<'d, PwmOp, PinA, PinB, PinC, Pos, Tim> {
+// 
+// }
