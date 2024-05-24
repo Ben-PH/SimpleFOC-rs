@@ -22,3 +22,6 @@ fugit = "0.3.7"
 log = { version = "0.4.20" }
 sfoc-rs = {path = "../core"}
 typenum = "1.17.0"
+#counters = {git = "https://github.com/Ben-PH/counter-proposal.git", rev = "07d19fe62c36219663c3917bb8cf1fe5eb752eaa"}
+counters = {path = "../../../embedded_work/counters/"}
+
