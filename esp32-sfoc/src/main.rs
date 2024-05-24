@@ -1,6 +1,9 @@
 #![no_std]
 #![no_main]
 
+use core::marker::PhantomData;
+
+use counters::{Counter, TimeCount};
 use embedded_hal::pwm::SetDutyCycle;
 use esp_backtrace as _;
 use esp_hal::{
@@ -22,7 +25,7 @@ use fixed::types::I16F16;
 use sfoc_rs::{
     base_traits::{
         bldc_driver::MotorHiPins,
-        foc_control::{FOController, PhaseAngle},
+        foc_control::{FOController, PhaseAngle, DefaultMotionCtrl, MotionTracker, MotionControl},
         PowerSupplyVoltage,
     },
     common::helpers::Triplet,
@@ -97,15 +100,16 @@ fn main() -> ! {
     loop {}
 }
 
-struct Esp3PWM<'d, PwmOp, PinA, PinB, PinC, Pos, Tim> {
+struct Esp3PWM<'d, PwmOp, PinA, PinB, PinC, Pos, Tim, M> {
     // mcpwm_periph: MCPWM<'d, PwmOp>,
     motor_triplet: Triplet<
         PwmPin<'d, PinA, PwmOp, 0, true>,
         PwmPin<'d, PinB, PwmOp, 1, true>,
         PwmPin<'d, PinC, PwmOp, 2, true>,
     >,
-    pulse_counter: Pos,
-    time_src: Tim,
+    pulse_counter: PhantomData<Pos>,
+    time_src: PhantomData<Tim>,
+    motion_ctrl: M,
 }
 
 struct Timer0<TG: TimerGroupInstance> {
@@ -132,8 +136,8 @@ impl<TG: TimerGroupInstance> counters::TimeCount for Timer0<TG> {
     }
 }
 
-impl<'d, PwmOp, PinA, PinB, PinC, Pos, Tim> PowerSupplyVoltage
-    for Esp3PWM<'d, PwmOp, PinA, PinB, PinC, Pos, Tim>
+impl<'d, PwmOp, PinA, PinB, PinC, Pos, Tim, M> PowerSupplyVoltage
+    for Esp3PWM<'d, PwmOp, PinA, PinB, PinC, Pos, Tim, M>
 {
     type DeciVolts = typenum::U120;
 }
@@ -145,7 +149,7 @@ impl<
         PinB: esp_hal::gpio::OutputPin,
         PinC: esp_hal::gpio::OutputPin,
         T: TimerGroupInstance,
-    > Esp3PWM<'d, PwmOp, PinA, PinB, PinC, EncoderPosn, TimerGroup<'d, T, Blocking>>
+    > Esp3PWM<'d, PwmOp, PinA, PinB, PinC, EncoderPosn, TimerGroup<'d, T, Blocking>, DefaultMotionCtrl<Timer0<T>, EncoderPosn>>
 {
     /// Takes in the peripherals needed in order run a motor:
     ///  - pin_a/b/c: These pins will be attached to the mcpwm peripheral
@@ -232,26 +236,27 @@ impl<
                 invert_sig: false,
             },
         );
+        let posn = EncoderPosn { unit: pcnt_unit0, roll_count: 0, gate_count: 0 };
+        let motion_tracker = MotionTracker::init(
+            time_src,
+            time_src.try_now_raw().unwrap_or_else(|_| panic!("")),
+            posn,
+            posn.try_read_raw().unwrap_or_else(|_| panic!("")),
+        );
 
         Self {
             motor_triplet,
-            pulse_counter: EncoderPosn {unit: pcnt_unit0, roll_count: 0, gate_count: 0},
-            time_src: timg0
+            motion_ctrl: sfoc_rs::base_traits::foc_control::DefaultMotionCtrl::new(None, motion_tracker),
+            time_src: PhantomData,
+            pulse_counter: PhantomData
         }
+
+
     }
 }
 
-impl<'d, PwmOp, A, B, C, Pos: counters::Counter, Tim> Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim> {
 
-    fn read(&self) -> Pos::CountMeasure {
-        let Ok(res) = self.pulse_counter.try_read() else {
-            unreachable!()
-        };
-        res
-    }
-}
-
-impl<'d, PwmOp, A, B, C, Pos, Tim> FOController for Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim>
+impl<'d, PwmOp, A, B, C, Pos, Tim, M> FOController for Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim, M>
 where
     PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
     PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,
@@ -259,7 +264,7 @@ where
 {
 }
 
-impl<'d, PwmOp, A, B, C, Pos, Tim> MotorHiPins for Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim>
+impl<'d, PwmOp, A, B, C, Pos, Tim, M> MotorHiPins for Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim, M>
 where
     PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
     PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,
