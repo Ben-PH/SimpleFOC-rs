@@ -125,8 +125,8 @@ impl<TG: TimerGroupInstance> counters::TimeCount for Timer0<TG> {
         Ok(self.timer.now())
     }
 
-    fn try_now(&self) -> Result<Self::TickMeasure, Self::Error> {
-        Ok(Self::TickMeasure::from_ticks(self.try_now_raw()?))
+    fn raw_to_measure(from: Self::RawData) -> Self::TickMeasure {
+        Self::TickMeasure::from_ticks(from)
     }
 }
 
@@ -245,11 +245,13 @@ impl<
             roll_count: 0,
             gate_count: 0,
         };
+        let now = time_src.try_now_raw().unwrap_or_else(|_| panic!(""));
+        let here = posn.try_read_raw().unwrap_or_else(|_| panic!(""));
         let motion_tracker = MotionTracker::init(
             time_src,
-            time_src.try_now_raw().unwrap_or_else(|_| panic!("")),
+            now,
             posn,
-            posn.try_read_raw().unwrap_or_else(|_| panic!("")),
+            here,
         );
 
         Self {

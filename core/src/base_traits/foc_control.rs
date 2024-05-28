@@ -91,7 +91,7 @@ impl<T: TimeCount, P: Counter, const BUF_SIZE: usize> MotionTracker<T, P, BUF_SI
         let raw_diff: T::RawData = num::CheckedSub::checked_sub(&pt_latest.1, &pt_before.1)
             .unwrap()
             .into();
-        let time_diff = raw_diff.into();
+        let time_diff = T::raw_to_measure(raw_diff);
         (P::raw_to_measure(pt_latest.0 - pt_before.0), time_diff)
     }
 }
