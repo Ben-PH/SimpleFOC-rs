@@ -10,11 +10,11 @@ pub struct PhaseState {
     pub lo_side: bool,
 }
 
-pub trait MotorHiPins {
+pub trait MotorPins {
     fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle);
     fn set_zero(&mut self);
 }
-pub trait VLimitedHiPins: MotorHiPins {
+pub trait VLimitedHiPins: MotorPins {
     /// TODO: go nightly, or wait for assosciated type defaults to stabalise, and set this to 120
     /// This is Deci-volts. easier than setting up a fixed point setup.
     /// If the scale here changes, account for the notion of users over-volting.
@@ -23,11 +23,11 @@ pub trait VLimitedHiPins: MotorHiPins {
     #[allow(unreachable_code)]
     fn set_limited_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle) {
         todo!("do the voltage clamp thing here");
-        <Self as MotorHiPins>::set_pwms(self, dc_a, dc_b, dc_c)
+        <Self as MotorPins>::set_pwms(self, dc_a, dc_b, dc_c)
     }
 }
 
-impl<A, B, C> MotorHiPins for Triplet<A, B, C>
+impl<A, B, C> MotorPins for Triplet<A, B, C>
 where
     A: SetDutyCycle,
     B: SetDutyCycle,

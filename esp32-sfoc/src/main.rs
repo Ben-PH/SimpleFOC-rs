@@ -25,8 +25,8 @@ use esp_hal::{
 use fixed::types::I16F16;
 use sfoc_rs::{
     base_traits::{
-        bldc_driver::MotorHiPins,
-        foc_control::{DefaultMotionCtrl, FOController, MotionControl, MotionTracker, PhaseAngle},
+        bldc_driver::MotorPins,
+        foc_control::{DefaultMotionCtrl, FOController, MotionTracker, PhaseAngle},
         PowerSupplyVoltage,
     },
     common::helpers::Triplet,
@@ -89,7 +89,7 @@ fn main() -> ! {
         },
         PhaseAngle(I16F16::PI),
     );
-    MotorHiPins::set_zero(&mut driver);
+    MotorPins::set_zero(&mut driver);
 
     loop {}
 }
@@ -200,13 +200,13 @@ impl<
             .operator2
             .with_pin_a(motor_pins.2, pin_config());
         // Put that into a Triplet. Because the pins meets the impl-constraints for
-        // `MotorHiPins` trait, it is now the pin-control driver/object
+        // `MotorPins` trait, it is now the pin-control driver/object
         let mut motor_triplet = Triplet {
             member_a: pin_a,
             member_b: pin_b,
             member_c: pin_c,
         };
-        MotorHiPins::set_zero(&mut motor_triplet);
+        MotorPins::set_zero(&mut motor_triplet);
 
         // We want middle-out. I don't know about the pre-scaler or freq settings, but this is my
         // best initial guess
@@ -272,7 +272,7 @@ where
 {
 }
 
-impl<'d, PwmOp, A, B, C, Pos, Tim, M> MotorHiPins for Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim, M>
+impl<'d, PwmOp, A, B, C, Pos, Tim, M> MotorPins for Esp3PWM<'d, PwmOp, A, B, C, Pos, Tim, M>
 where
     PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
     PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,

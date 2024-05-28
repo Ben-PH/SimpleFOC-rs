@@ -6,7 +6,7 @@ use pid::Pid;
 
 use crate::common::helpers::DutyCycle;
 
-use super::{bldc_driver::MotorHiPins, pos_sensor::PosSensor};
+use super::{bldc_driver::MotorPins, pos_sensor::PosSensor};
 
 pub struct ForceVoltage(pub f32);
 pub struct DCCurrent(f32);
@@ -179,7 +179,7 @@ where
 }
 
 // temporarily hacked to be for a 3pwm bldc motor
-pub trait FOController: Sized + MotorHiPins {
+pub trait FOController: MotorPins {
     // fn enable(&mut self);
     // fn disable(&mut self);
     // fn link_sensor/current_sensor(....
