@@ -130,12 +130,6 @@ impl<TG: TimerGroupInstance> counters::TimeCount for Timer0<TG> {
     }
 }
 
-impl<'d, PwmOp, PinA, PinB, PinC, Pos, Tim, M> PowerSupplyVoltage
-    for Esp3PWM<'d, PwmOp, PinA, PinB, PinC, Pos, Tim, M>
-{
-    type DeciVolts = typenum::U120;
-}
-
 impl<
         'd,
         PwmOp: PwmPeripheral,

@@ -178,7 +178,7 @@ where
     }
 }
 
-// temporarily hacked to be for a 3pwm bldc motor
+// temporarily hacked to be for a 3pwm bldc motor, const voltage, svpm
 pub trait FOController: MotorPins {
     // fn enable(&mut self);
     // fn disable(&mut self);
@@ -189,7 +189,7 @@ pub trait FOController: MotorPins {
     fn set_phase_voltage(&mut self, voltages_q_d: MovingReferenceFrame, phase_angle: PhaseAngle) {
         let (sin_angle, cos_angle) = cordic::sin_cos(phase_angle.0);
         let orth_v = foc::park_clarke::inverse_park(cos_angle, sin_angle, voltages_q_d);
-        let [phase_a, phase_b, phase_c] = foc::pwm::spwm(orth_v);
+        let [phase_a, phase_b, phase_c] = foc::pwm::svpwm(orth_v);
         self.set_pwms(DutyCycle(phase_a), DutyCycle(phase_b), DutyCycle(phase_c))
     }
 }
