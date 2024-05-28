@@ -37,9 +37,9 @@ struct EncoderPosn {
     // the underlying esp32 pulse count reader
     unit: unit::Unit,
     // TODO: setup the unit interupt handler to track this in the background
-    roll_count: u16,
+    _roll_count: u16,
     // TODO: setup the unit interupt handler to track this in the background
-    gate_count: u16,
+    _gate_count: u16,
 }
 
 impl counters::Counter for EncoderPosn {
@@ -50,7 +50,7 @@ impl counters::Counter for EncoderPosn {
         Ok(self.unit.get_value())
     }
 
-    fn raw_to_measure(from: Self::RawData) -> Self::CountMeasure {
+    fn raw_to_measure(_from: Self::RawData) -> Self::CountMeasure {
         todo!("Each pulse should be scaled by a distance here")
     }
 }
@@ -103,7 +103,7 @@ struct Esp3PWM<'d, PwmOp, PinA, PinB, PinC, Pos, Tim, M> {
     >,
     pulse_counter: PhantomData<Pos>,
     time_src: PhantomData<Tim>,
-    motion_ctrl: M,
+    _motion_ctrl: M,
 }
 
 struct Timer0<TG: TimerGroupInstance> {
@@ -177,9 +177,9 @@ impl<
         ),
     ) -> Self {
         // set up the peripherals for our specific usecase
-        let timg0 = TimerGroup::new(timg_choice, &clocks, None);
+        let timg0 = TimerGroup::new(timg_choice, clocks, None);
         let time_src = Timer0::init(timg0.timer0);
-        let clock_cfg = PeripheralClockConfig::with_frequency(&clocks, 40.MHz()).unwrap();
+        let clock_cfg = PeripheralClockConfig::with_frequency(clocks, 40.MHz()).unwrap();
 
         // Boiler-plate configuration...
         let pin_config =
@@ -242,21 +242,16 @@ impl<
         );
         let posn = EncoderPosn {
             unit: pcnt_unit0,
-            roll_count: 0,
-            gate_count: 0,
+            _roll_count: 0,
+            _gate_count: 0,
         };
         let now = time_src.try_now_raw().unwrap_or_else(|_| panic!(""));
         let here = posn.try_read_raw().unwrap_or_else(|_| panic!(""));
-        let motion_tracker = MotionTracker::init(
-            time_src,
-            now,
-            posn,
-            here,
-        );
+        let motion_tracker = MotionTracker::init(time_src, now, posn, here);
 
         Self {
             motor_triplet,
-            motion_ctrl: sfoc_rs::base_traits::foc_control::DefaultMotionCtrl::new(
+            _motion_ctrl: sfoc_rs::base_traits::foc_control::DefaultMotionCtrl::new(
                 None,
                 motion_tracker,
             ),

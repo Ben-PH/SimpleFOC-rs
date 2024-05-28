@@ -1,7 +1,5 @@
 use core::marker::PhantomData;
 
-use pid::Pid;
-
 pub trait MovementOrientation {
     fn dirstr(dir: &Option<bool>) -> &'static str;
 }

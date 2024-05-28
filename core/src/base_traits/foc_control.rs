@@ -6,11 +6,11 @@ use pid::Pid;
 
 use crate::common::helpers::DutyCycle;
 
-use super::{bldc_driver::MotorPins, pos_sensor::PosSensor};
+use super::bldc_driver::MotorPins;
 
 pub struct ForceVoltage(pub f32);
-pub struct DCCurrent(f32);
-pub struct FOCCurrent(f32);
+pub struct DCCurrent(pub f32);
+pub struct FOCCurrent(pub f32);
 
 pub struct PhaseAngle(pub I16F16);
 /// Distance from 0-reference to denote position.
@@ -19,8 +19,8 @@ pub struct Displacement<T>(pub T);
 /// Used in the derivitives of Displacement
 pub struct TimeDelta<T>(pub T);
 pub struct Velocity<Dd, Dt> {
-    d_disp: Displacement<Dd>,
-    d_time: TimeDelta<Dt>,
+    _d_disp: Displacement<Dd>,
+    _d_time: TimeDelta<Dt>,
 }
 
 pub struct QCurrentPID(pub Pid<f32>);
@@ -29,16 +29,16 @@ pub struct VelocityPID(pub Pid<f32>);
 pub struct VoltagePID(pub Pid<f32>);
 pub struct PositionPID(pub Pid<f32>);
 
-pub struct Amps(I16F16);
+pub struct Amps(pub I16F16);
 
 /// Note: P::Output and Instant<C> relies on popping the stack to release memory.
 // TODO: setup BufSize so that its length is typed. Len 1: position, 2: vel, and so on
 //       ...with arbitrary buffer-len, we can use math-magic like taylor siries and
 //       other cool things to get nice analysis
-pub struct MotionTracker<C: TimeCount, P: Counter, const BufSize: usize> {
+pub struct MotionTracker<C: TimeCount, P: Counter, const BUF_SIZE: usize> {
     clock_source: C,
     pos_source: P,
-    mvmnt_buffer: [MaybeUninit<(P::RawData, C::RawData)>; BufSize],
+    mvmnt_buffer: [MaybeUninit<(P::RawData, C::RawData)>; BUF_SIZE],
     head: u8,
     entry_count: u8,
 }
@@ -69,17 +69,17 @@ impl<T: TimeCount, P: Counter, const BUF_SIZE: usize> MotionTracker<T, P, BUF_SI
             self.entry_count += 1;
         }
     }
-    fn latest_pos(&self) -> P::RawData {
+    pub fn latest_pos(&self) -> P::RawData {
         let head = self.mvmnt_buffer[self.head as usize];
         unsafe { head.assume_init() }.0
     }
-    fn latest_vel(&self) -> (P::CountMeasure, T::TickMeasure)
+    pub fn latest_vel(&self) -> (P::CountMeasure, T::TickMeasure)
     where
         T::RawData: num::CheckedSub,
         P::RawData: Sub<P::RawData, Output = P::RawData>,
     {
         assert!(self.entry_count > 1, "todo: getting latest velocity should by type-constrained to when it's tracked two position/instant pairs");
-        let pta = self.mvmnt_buffer[self.head as usize];
+        let _pta = self.mvmnt_buffer[self.head as usize];
         let prev = if self.head == 0 {
             BUF_SIZE - 1
         } else {
@@ -161,7 +161,7 @@ where
     // fn do_motion_impl(&mut self, motion: Displacement<f32>) {
     //     todo!()
     // }
-    fn set_displacement(&mut self, motion: Displacement<f32>) {
+    fn set_displacement(&mut self, _motion: Displacement<f32>) {
         // optional downsample early-return/update
         if let Some(&mut (ref mut count, sample)) = self.motion_down_sample.as_mut() {
             *count += 1;

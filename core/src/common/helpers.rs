@@ -1,4 +1,3 @@
-use core::num::NonZeroU16;
 
 pub const SQRT3: f32 = 1.732_050_807_57;
 pub const _3PI_2: f32 = 4.712_388_980_38;
