@@ -1,10 +1,11 @@
+use esp_hal::{timer::{TimerGroupInstance, Enable, Instance}, Blocking};
 
 struct Timer0<TG: TimerGroupInstance> {
     timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>,
 }
 
 impl<TG: TimerGroupInstance> Timer0<TG> {
-    fn init(timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>) -> Self {
+    pub fn init(timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>) -> Self {
         timer.enable_peripheral();
         Self { timer }
     }
@@ -22,4 +23,3 @@ impl<TG: TimerGroupInstance> counters::TimeCount for Timer0<TG> {
         Self::TickMeasure::from_ticks(from)
     }
 }
-

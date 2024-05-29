@@ -1,5 +1,4 @@
 use core::marker::PhantomData;
-use counters::{Counter, TimeCount};
 use embedded_hal::pwm::SetDutyCycle;
 use esp_backtrace as _;
 use esp_hal::{
@@ -12,15 +11,13 @@ use esp_hal::{
     pcnt::{channel, unit, PCNT},
     peripheral::Peripheral,
     peripherals,
-    prelude::*,
-    timer::{TimerGroup, TimerGroupInstance},
-    Blocking
+    prelude::*
 };
 
 use sfoc_rs::{
     base_traits::{
         bldc_driver::MotorPins,
-        foc_control::{DefaultMotionCtrl, MotionTracker, FOController},
+        foc_control::FOController,
     },
     common::helpers::Triplet,
 };
@@ -151,7 +148,7 @@ impl<
     }
 }
 
-impl<'d, PwmOp, A, B, C, Pos, Tim, M> MotorPins for Esp3PWM<'d, PwmOp, A, B, C, Pos>
+impl<'d, PwmOp, A, B, C, Pos> MotorPins for Esp3PWM<'d, PwmOp, A, B, C, Pos>
 where
     PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
     PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,
@@ -172,7 +169,7 @@ where
 }
 
 
-impl<'d, PwmOp, A, B, C, Pos, Tim, M> FOController for Esp3PWM<'d, PwmOp, A, B, C, Pos>
+impl<'d, PwmOp, A, B, C, Pos> FOController for Esp3PWM<'d, PwmOp, A, B, C, Pos>
 where
     PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
     PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,
