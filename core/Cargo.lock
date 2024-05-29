@@ -38,6 +38,7 @@ dependencies = [
 [[package]]
 name = "counters"
 version = "0.0.2"
+source = "git+https://github.com/Ben-PH/counter-proposal.git#57c9913a3a75f8ebf8218b745b208b90dfe9d49a"
 
 [[package]]
 name = "crunchy"
