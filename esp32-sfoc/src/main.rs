@@ -16,9 +16,9 @@ use esp_hal::{
 
 use fixed::types::I16F16;
 use sfoc_rs::base_traits::{
-        bldc_driver::MotorPins,
-        foc_control::{FOController, PhaseAngle},
-    };
+    bldc_driver::MotorPins,
+    foc_control::{FOController, PhaseAngle},
+};
 
 #[esp_hal::entry]
 fn main() -> ! {
@@ -29,7 +29,6 @@ fn main() -> ! {
 
     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
     let pins = io.pins;
-
 
     let mut driver = Esp3PWM::new(
         &clocks,
@@ -48,9 +47,5 @@ fn main() -> ! {
         PhaseAngle(I16F16::PI),
     );
     MotorPins::set_zero(&mut driver);
-    loop {
-    }
+    loop {}
 }
-
-
-
