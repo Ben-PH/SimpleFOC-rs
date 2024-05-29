@@ -12,7 +12,9 @@ pub struct PhaseState {
 
 pub trait MotorPins {
     fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle);
-    fn set_zero(&mut self);
+    fn set_zero(&mut self) {
+        self.set_pwms(DutyCycle(0.0), DutyCycle(0.0), DutyCycle(0.0));
+    }
 }
 pub trait VLimitedHiPins: MotorPins {
     /// TODO: go nightly, or wait for assosciated type defaults to stabalise, and set this to 120

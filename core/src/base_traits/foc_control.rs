@@ -36,7 +36,7 @@ pub struct Amps(pub I16F16);
 //       ...with arbitrary buffer-len, we can use math-magic like taylor siries and
 //       other cool things to get nice analysis
 pub struct MotionTracker<C: TimeCount, P: Counter, const BUF_SIZE: usize> {
-    clock_source: C,
+    pub clock_source: C,
     pos_source: P,
     mvmnt_buffer: [MaybeUninit<(P::RawData, C::RawData)>; BUF_SIZE],
     head: u8,
@@ -136,7 +136,7 @@ pub trait MotionControl: Sized {
 
 pub struct DefaultMotionCtrl<T: TimeCount, P: Counter> {
     motion_down_sample: Option<(u32, u32)>,
-    motion_tracker: MotionTracker<T, P, 4>,
+    pub motion_tracker: MotionTracker<T, P, 4>,
 }
 
 impl<T: TimeCount, P: Counter> DefaultMotionCtrl<T, P> {
