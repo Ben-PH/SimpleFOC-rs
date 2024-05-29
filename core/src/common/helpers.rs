@@ -1,4 +1,3 @@
-
 pub const SQRT3: f32 = 1.732_050_807_57;
 pub const _3PI_2: f32 = 4.712_388_980_38;
 pub const RPM_TO_RADS: f32 = 0.104_719_755_12;
