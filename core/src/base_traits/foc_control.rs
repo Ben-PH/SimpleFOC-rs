@@ -192,4 +192,5 @@ pub trait FOController: MotorPins {
         let [phase_a, phase_b, phase_c] = foc::pwm::svpwm(orth_v);
         self.set_pwms(DutyCycle(phase_a), DutyCycle(phase_b), DutyCycle(phase_c))
     }
+    fn set_psu_millivolt(&self, mv: u16);
 }

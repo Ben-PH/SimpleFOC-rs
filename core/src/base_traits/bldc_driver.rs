@@ -1,3 +1,5 @@
+use core::num::NonZeroU16;
+
 use embedded_hal::pwm::SetDutyCycle;
 use typenum::{IsGreater, True, Unsigned, U0};
 
@@ -46,4 +48,10 @@ where
         let _ = SetDutyCycle::set_duty_cycle_fully_off(&mut self.member_a);
         let _ = SetDutyCycle::set_duty_cycle_fully_off(&mut self.member_a);
     }
+}
+
+pub struct VoltageConfig {
+    pub psu_millivolts: u16,
+    pub limit_millivolts: u16,
+    // todo: think about where the pwm ferquency needs to go.
 }
