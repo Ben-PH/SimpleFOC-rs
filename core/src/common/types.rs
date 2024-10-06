@@ -1,6 +1,5 @@
+#![allow(dead_code)]
 use core::marker::PhantomData;
-
-use pid::Pid;
 
 pub trait MovementOrientation {
     fn dirstr(dir: &Option<bool>) -> &'static str;
@@ -40,16 +39,6 @@ impl<T: MovementOrientation> core::fmt::Debug for Direction<T> {
     }
 }
 
-pub struct Velocity<D, T> {
-    pub displacement: D,
-    pub time: T,
-}
-
-pub struct QCurrentPID(pub Pid<f32>);
-pub struct DCurrentPID(pub Pid<f32>);
-pub struct VelocityPID(pub Pid<f32>);
-pub struct VoltagePID(pub Pid<f32>);
-pub struct PositionPID(pub Pid<f32>);
 // So velocity must have a non-zero denominator. Because this is a run-time thing, the use of
 // typnum for the denominator would explode the binary size
 //

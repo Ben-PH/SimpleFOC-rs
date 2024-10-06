@@ -1,31 +1,17 @@
-simple FOC, rewritten in rust.
+Simple FOC, but with Rust.
 
-### State of project
+Still a heavy WIP. Getting close to a very basic const-voltage implementation for esp32.
 
-Without any actual testing done, the first proofe of concept seems to be there. For a platform to be supported:
+One motivation is the prospect of, sometime down the line, there being a Rust option in which to explore the Simple FOC playground. To that end, some design principals that I try to think about:
 
-1. Define the assembly of peripherals needed (pins, pulse-counters, etc) for said platform, using that platforms idioms.
-2. Implement the relevant traits on said assembly.
-
-For example, the esp32 with the esp-hal crate allows you to pass in pins, mcpwm peripheral, and timer group peripheral in their own way.
-
-you then initialise said peripherals (e.g. connecting pins to the mcpwm operators), and assemble them into a struct.
-
-Now: think about the process of setting a phase voltage when at a given angle. It comes in two parts:
-
-1.0: Determine the voltages that each phase needs to be seeing
-1.1: Map these voltages to the pwm duty cycle for each pin
-2:   Setup the pins to run with said duty cycles
-
-The requirements for a platform to be supported comes down to these key notions:
-
-- Implement the desired traits for a struct
-- Ensure that the struct contains data thet allows the struct to meet the trait constraints
-
-E.g. to set the duty cycles of the phases, you must have access to three items that implement the `embedded_hal::pwm::SetDutyCycle` trait. This implies that the constructor must include three arguments, constrained in such a way that they must be able to be transformed into something that implements this trait, and this post-transformation item becomes part of the final struct.
+- No suprises when moving between Arduino and Rust: Moving between the two should bring a sense of familiarity. It should feel like applying the same concepts, in familiar patterns, just using idioms that change with the language being used.
+- Simplicity, Accesibility, and Educational Enjoyment: Simple FOC delliberately makes design and implementation decisions that prioritises ease of use and enjoyment, and I aim to follow their lead. This will often imply that in order to make _using_ this library simple, the underlying code must bear the burden of managing complexity.
+- Advanced usage: Though not a primary aim, a bonus acheivement would include suitability for more advanced and nuanced use, such as 3d printer firmware. For emphasis: this goal is secondary to the first two.
 
 
 
-#### with respect to licence and assigning credit for work: 
+### With respect to licence and assigning credit for work: 
+
+This project started as a direct rewrite of the Simple FOC library. This has changed a touch, as Rust idioms and C++ Arduino idoms are at times in conflict. With that said, the project has gotten to its current state with a lot of direct input from the SFOC people, and this project continues to draw heavily from the original works of the SFOC Arduino library.
 
 At time of writing, this is a re-write of Simple FOC library. "We stand on the shoulders of giants" couldn't apply more here. Please refer to the Citations file, and the OG library [here](https://github.com/simplefoc/Arduino-FOC)

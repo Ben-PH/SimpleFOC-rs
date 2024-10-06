@@ -16,3 +16,5 @@ log = { version = "0.4.20" }
 micromath = "2.1.0"
 pid = "4.0.0"
 typenum = "1.17.0"
+counters = {git = "https://github.com/Ben-PH/counter-proposal.git"}
+num = { version = "0.4.3", default-features = false }

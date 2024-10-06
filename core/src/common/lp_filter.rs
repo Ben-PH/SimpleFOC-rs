@@ -15,6 +15,7 @@ impl<C: Clock> LPFilter<C> {
             y_prev: 0.0,
         }
     }
+    #[allow(unreachable_code)]
     pub fn run(&mut self, clock: &C, _x: f32) -> f32 {
         let now = clock.try_now().unwrap();
         let _dt = now.checked_duration_since(&self.timestamp_prev).unwrap();
