@@ -1,5 +1,3 @@
-use core::num::NonZeroU16;
-
 use embedded_hal::pwm::SetDutyCycle;
 use typenum::{IsGreater, True, Unsigned, U0};
 

@@ -11,14 +11,11 @@ use esp_hal::{
     pcnt::{channel, unit, PCNT},
     peripheral::Peripheral,
     peripherals,
-    prelude::*
+    prelude::*,
 };
 
 use sfoc_rs::{
-    base_traits::{
-        bldc_driver::MotorPins,
-        foc_control::FOController,
-    },
+    base_traits::{bldc_driver::MotorPins, foc_control::FOController},
     common::helpers::Triplet,
 };
 
@@ -167,7 +164,6 @@ where
         self.motor_triplet.set_zero()
     }
 }
-
 
 impl<'d, PwmOp, A, B, C, Pos> FOController for Esp3PWM<'d, PwmOp, A, B, C, Pos>
 where

@@ -11,7 +11,7 @@ use fixed::types::I16F16;
 use foc::park_clarke;
 use sfoc_rs::{
     self,
-    base_traits::{bldc_driver::MotorPins, foc_control::FOController, pos_sensor::PosSensor},
+    bldc_driver::MotorPins, foc_control::FOController, pos_sensor::PosSensor,
     common::helpers::DutyCycle,
 };
 
@@ -55,7 +55,11 @@ fn foc_main(mut driver: SomePlatformSpecificImpl) -> ! {
 /// support
 struct SomePlatformSpecificImpl;
 
-impl FOController for SomePlatformSpecificImpl {}
+impl FOController for SomePlatformSpecificImpl {
+    fn set_psu_millivolt(&self, mv: u16) {
+        unimplemented!()
+    }
+}
 
 impl MotorPins for SomePlatformSpecificImpl {
     fn set_pwms(
