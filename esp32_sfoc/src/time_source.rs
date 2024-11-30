@@ -1,4 +1,7 @@
-use esp_hal::{timer::{TimerGroupInstance, Enable, Instance}, Blocking};
+use esp_hal::{
+    timer::{Enable, Instance, TimerGroupInstance},
+    Blocking,
+};
 
 struct Timer0<TG: TimerGroupInstance> {
     timer: esp_hal::timer::Timer<esp_hal::timer::Timer0<TG>, Blocking>,

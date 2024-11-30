@@ -1,6 +1,5 @@
 use esp_hal::pcnt::unit;
 
-
 /// micrometers for each pulse
 pub struct EncoderPosn {
     // the underlying esp32 pulse count reader
@@ -8,7 +7,9 @@ pub struct EncoderPosn {
 }
 
 impl EncoderPosn {
-    pub fn new(unit: unit::Unit) -> Self { Self { unit } }
+    pub fn new(unit: unit::Unit) -> Self {
+        Self { unit }
+    }
 }
 
 impl counters::Counter for EncoderPosn {
@@ -23,4 +24,3 @@ impl counters::Counter for EncoderPosn {
         todo!("Each pulse should be scaled by a distance here")
     }
 }
-
