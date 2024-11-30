@@ -7,12 +7,11 @@
 /// chosen such that a matching back-EMF is generated at around 30RPM.
 use std::time::SystemTime;
 
-use fixed::types::I16F16;
+use discrete_count::re_exports::fixed::types::I16F16;
 use foc::park_clarke;
 use sfoc_rs::{
-    self,
-    bldc_driver::MotorPins, foc_control::FOController, pos_sensor::PosSensor,
-    common::helpers::DutyCycle,
+    self, bldc_driver::MotorPins, common::helpers::DutyCycle, foc_control::FOController,
+    pos_sensor::PosSensor,
 };
 
 fn main() {

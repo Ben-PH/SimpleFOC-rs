@@ -1,21 +1,19 @@
 use pid::Pid;
 
-use crate::common::helpers::{DQVoltage, DQCurrent};
-
+use crate::common::helpers::{DQCurrent, DQVoltage};
 
 pub struct RawRewriteStateVars {
     pub set_pont: f32,
     pub feed_forward_velocity: f32,
     pub shaft_angle: f32,
-    pub electrical_angle:f32,
+    pub electrical_angle: f32,
     pub shaft_velocity: f32,
     pub target_shaft_angle: f32,
     pub latest_dq_voltage: DQVoltage,
     pub latest_dq_current: DQCurrent,
-    pub estimated_back_emf: f32, 
+    pub estimated_back_emf: f32,
     pub park_clarke_dq: (f32, f32),
 }
-
 
 pub struct RawRewriteConfigParams {
     pub voltage_sensor_align: f32,
@@ -59,4 +57,3 @@ pub struct RawRewriteSensorVars {
     pub is_forward: Option<bool>,
     pub pp_check_res: bool,
 }
-
