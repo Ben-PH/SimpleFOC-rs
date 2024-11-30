@@ -1,4 +1,7 @@
-use discrete_count::re_exports::typenum::{IsGreater, True, Unsigned, U0};
+use discrete_count::re_exports::{
+    fixed::types::I16F16,
+    typenum::{IsGreater, True, Unsigned, U0},
+};
 use embedded_hal::pwm::SetDutyCycle;
 
 use crate::common::helpers::{DutyCycle, Triplet};
@@ -13,7 +16,11 @@ pub struct PhaseState {
 pub trait MotorPins {
     fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle);
     fn set_zero(&mut self) {
-        self.set_pwms(DutyCycle(0.0), DutyCycle(0.0), DutyCycle(0.0));
+        self.set_pwms(
+            DutyCycle(I16F16::ZERO),
+            DutyCycle(I16F16::ZERO),
+            DutyCycle(I16F16::ZERO),
+        );
     }
 }
 pub trait VLimitedHiPins: MotorPins {
@@ -36,9 +43,13 @@ where
     C: SetDutyCycle,
 {
     fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle) {
-        let _ = SetDutyCycle::set_duty_cycle_percent(&mut self.member_a, (dc_a.0 * 100.0) as u8);
-        let _ = SetDutyCycle::set_duty_cycle_percent(&mut self.member_b, (dc_b.0 * 100.0) as u8);
-        let _ = SetDutyCycle::set_duty_cycle_percent(&mut self.member_c, (dc_c.0 * 100.0) as u8);
+        let hundred = I16F16::from_num(100);
+        let _ =
+            SetDutyCycle::set_duty_cycle_percent(&mut self.member_a, (dc_a.0 * hundred).to_num());
+        let _ =
+            SetDutyCycle::set_duty_cycle_percent(&mut self.member_b, (dc_b.0 * hundred).to_num());
+        let _ =
+            SetDutyCycle::set_duty_cycle_percent(&mut self.member_c, (dc_c.0 * hundred).to_num());
     }
 
     fn set_zero(&mut self) {

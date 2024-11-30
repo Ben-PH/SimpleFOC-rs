@@ -1,4 +1,6 @@
 #![allow(clippy::excessive_precision)]
+
+use discrete_count::re_exports::fixed::types::I16F16;
 pub const SQRT3: f32 = 1.732_050_807_57;
 pub const _3PI_2: f32 = 4.712_388_980_38;
 pub const RPM_TO_RADS: f32 = 0.104_719_755_12;
@@ -11,7 +13,7 @@ pub const _120_D2R: f32 = 2.094_395_102_39;
 pub struct Current(pub f32);
 #[derive(Default)]
 pub struct Voltage(pub f32);
-pub struct DutyCycle(pub f32);
+pub struct DutyCycle(pub I16F16);
 
 /// Encapsulates the common pattern of three-way-coupling in 3-phase motors.
 /// E.g. 3 pairs of pins to control an h-bridge. ADC reader pins. etc.

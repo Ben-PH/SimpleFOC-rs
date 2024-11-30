@@ -8,7 +8,7 @@
 use std::time::SystemTime;
 
 use discrete_count::re_exports::fixed::types::I16F16;
-use foc::park_clarke;
+use foc::{park_clarke, pwm::Modulation};
 use sfoc_rs::{
     self, bldc_driver::MotorPins, common::helpers::DutyCycle, foc_control::FOController,
     pos_sensor::PosSensor,
@@ -31,7 +31,7 @@ fn foc_main(mut driver: SomePlatformSpecificImpl) -> ! {
         let (sin, cos) = cordic::sin_cos(angle);
 
         // we are setting 10% in the quadrature (torque) and 0% direct-axis
-        let qd = park_clarke::MovingReferenceFrame {
+        let qd = park_clarke::RotatingReferenceFrame {
             d: I16F16::ZERO,
             q: I16F16::from_num(0.1),
         };
@@ -40,7 +40,7 @@ fn foc_main(mut driver: SomePlatformSpecificImpl) -> ! {
         let inv_parke = foc::park_clarke::inverse_park(cos, sin, qd);
         // and use the ideal, though computationally heavy, scale-vector calculation for desired
         // pwm duty-cycles, i.e. the percentage-of-maximum that each motor-phase will be set to
-        let [dc_a, dc_b, dc_c] = foc::pwm::svpwm(inv_parke);
+        let [dc_a, dc_b, dc_c] = foc::pwm::SpaceVector::modulate(inv_parke);
 
         //... and set them.
         driver.set_pwms(DutyCycle(dc_a), DutyCycle(dc_b), DutyCycle(dc_c));
