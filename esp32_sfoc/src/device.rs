@@ -14,9 +14,10 @@ use esp_hal::{
     prelude::*,
 };
 
-use sfoc_rs::{
-    base_traits::{bldc_driver::MotorPins, foc_control::FOController},
-    common::helpers::Triplet,
+use sfoc_rs_core::{
+    bldc_driver::MotorPins,
+    common::helpers::{DutyCycle, Triplet},
+    foc_control::FOController,
 };
 
 use crate::posn_encoder::EncoderPosn;
@@ -151,12 +152,7 @@ where
     PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,
     PwmPin<'d, C, PwmOp, 2, true>: SetDutyCycle,
 {
-    fn set_pwms(
-        &mut self,
-        dc_a: sfoc_rs::common::helpers::DutyCycle,
-        dc_b: sfoc_rs::common::helpers::DutyCycle,
-        dc_c: sfoc_rs::common::helpers::DutyCycle,
-    ) {
+    fn set_pwms(&mut self, dc_a: DutyCycle, dc_b: DutyCycle, dc_c: DutyCycle) {
         self.motor_triplet.set_pwms(dc_a, dc_b, dc_c)
     }
 
@@ -171,4 +167,7 @@ where
     PwmPin<'d, B, PwmOp, 1, true>: SetDutyCycle,
     PwmPin<'d, C, PwmOp, 2, true>: SetDutyCycle,
 {
+    fn set_psu_millivolt(&self, mv: u16) {
+        todo!()
+    }
 }

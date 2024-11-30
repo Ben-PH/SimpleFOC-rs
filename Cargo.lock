@@ -52,6 +52,12 @@ checksum = "c821a6e124197eb56d907ccc2188eab1038fb919c914f47976e64dd8dbc855d1"
 
 [[package]]
 name = "bitflags"
+version = "1.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
+
+[[package]]
+name = "bitflags"
 version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
@@ -138,10 +144,51 @@ dependencies = [
 ]
 
 [[package]]
+name = "defmt"
+version = "0.3.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "86f6162c53f659f65d00619fe31f14556a6e9f8752ccc4a41bd177ffcf3d6130"
+dependencies = [
+ "bitflags 1.3.2",
+ "defmt-macros",
+]
+
+[[package]]
+name = "defmt-macros"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d135dd939bad62d7490b0002602d35b358dce5fd9233a709d3c1ef467d4bde6"
+dependencies = [
+ "defmt-parser",
+ "proc-macro-error2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.90",
+]
+
+[[package]]
+name = "defmt-parser"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3983b127f13995e68c1e29071e5d115cd96f215ccb5e6812e3728cd6f92653b3"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
 name = "discrete_count"
 version = "0.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72946f16007d8d92d6ef8f8d3b8d274059435ae5d39dc7dc824fd6d68b18b3ce"
+dependencies = [
+ "discrete_count_core",
+ "fixed",
+]
+
+[[package]]
+name = "discrete_count"
+version = "0.0.2"
+source = "git+https://github.com/Ben-PH/discrete_count?rev=15f55d4680b418b6fa5bb954c3c320b89af6ee9e#15f55d4680b418b6fa5bb954c3c320b89af6ee9e"
 dependencies = [
  "discrete_count_core",
  "fixed",
@@ -251,6 +298,7 @@ version = "0.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb7660d85e3e7b0e113aaeeffb1a155e64a09a5035d4104031875acdba4cb68e"
 dependencies = [
+ "defmt",
  "esp-build",
  "esp-println",
  "semihosting",
@@ -275,7 +323,7 @@ checksum = "a6e19440eb58fd1dd0c4f6722c953f7026571210c70ce69956d022faeb8fe4b4"
 dependencies = [
  "basic-toml",
  "bitfield",
- "bitflags",
+ "bitflags 2.6.0",
  "cfg-if",
  "critical-section",
  "document-features",
@@ -290,7 +338,6 @@ dependencies = [
  "esp-riscv-rt",
  "esp32",
  "fugit",
- "log",
  "nb",
  "paste",
  "portable-atomic",
@@ -336,10 +383,8 @@ version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ee38e87bc7e303c299047c0e9bcd0f8ccca7c7e70d1fd78bbb565db14f33beb6"
 dependencies = [
- "critical-section",
  "esp-build",
  "log",
- "portable-atomic",
 ]
 
 [[package]]
@@ -368,16 +413,16 @@ dependencies = [
 name = "esp32_sfoc"
 version = "0.1.0"
 dependencies = [
+ "discrete_count 0.0.2 (git+https://github.com/Ben-PH/discrete_count?rev=15f55d4680b418b6fa5bb954c3c320b89af6ee9e)",
  "embedded-hal",
  "embedded-time",
  "esp-backtrace",
  "esp-hal",
- "esp-println",
  "fixed",
  "foc",
  "fugit",
  "log",
- "sfoc_rs",
+ "sfoc_rs_core",
  "typenum",
 ]
 
@@ -394,41 +439,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fixed-macro"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fd0c48af8cb14e02868f449f8a2187bd78af7a08da201fdc78d518ecb1675bc"
-dependencies = [
- "fixed",
- "fixed-macro-impl",
- "fixed-macro-types",
-]
-
-[[package]]
-name = "fixed-macro-impl"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c93086f471c0a1b9c5e300ea92f5cd990ac6d3f8edf27616ef624b8fa6402d4b"
-dependencies = [
- "fixed",
- "paste",
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "fixed-macro-types"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "044a61b034a2264a7f65aa0c3cd112a01b4d4ee58baace51fead3f21b993c7e4"
-dependencies = [
- "fixed",
- "fixed-macro-impl",
-]
-
-[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -436,13 +446,12 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
 name = "foc"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aca7e51c1aebb89a1160ea56aee6671257afc98f7d28d47b0c8062cfe16b8b6a"
+checksum = "e162e4bf45e12dfb5de9c561acd8fffd5f9ecb7439440bfb7a7dababd972594f"
 dependencies = [
  "cordic",
  "fixed",
- "fixed-macro",
 ]
 
 [[package]]
@@ -717,6 +726,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "proc-macro-error-attr2"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96de42df36bb9bba5542fe9f1a054b8cc87e172759a1868aa05c1f3acc89dfc5"
+dependencies = [
+ "proc-macro2",
+ "quote",
+]
+
+[[package]]
+name = "proc-macro-error2"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "11ec05c52be0a07b08061f7dd003e7d7092e0472bc731b4af7bb1ef876109802"
+dependencies = [
+ "proc-macro-error-attr2",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.90",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.92"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -838,6 +869,9 @@ dependencies = [
 name = "sfoc_rs"
 version = "0.3.0"
 dependencies = [
+ "cordic",
+ "discrete_count 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "foc",
  "sfoc_rs_core",
 ]
 
@@ -846,7 +880,7 @@ name = "sfoc_rs_core"
 version = "0.0.1"
 dependencies = [
  "cordic",
- "discrete_count",
+ "discrete_count 0.0.2 (git+https://github.com/Ben-PH/discrete_count?rev=15f55d4680b418b6fa5bb954c3c320b89af6ee9e)",
  "embedded-hal",
  "embedded-time",
  "foc",
@@ -948,6 +982,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06794f8f6c5c898b3275aebefa6b8a1cb24cd2c6c79397ab15774837a0bc5755"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "thiserror"
+version = "2.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c006c85c7651b3cf2ada4584faa36773bd07bac24acfb39f3c431b36d7e667aa"
+dependencies = [
+ "thiserror-impl",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "2.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f077553d607adc1caf65430528a576c757a71ed73944b66ebb58ef2bbd243568"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.90",
 ]
 
 [[package]]

@@ -15,11 +15,11 @@ use esp_hal::{
 };
 
 use fixed::types::I16F16;
-use sfoc_rs::base_traits::{
+use sfoc_rs_core::{
     bldc_driver::MotorPins,
     foc_control::{FOController, PhaseAngle},
 };
-
+// use sfoc_rs_core::
 #[esp_hal::entry]
 fn main() -> ! {
     let peripherals = Peripherals::take();
@@ -40,7 +40,7 @@ fn main() -> ! {
 
     FOController::set_phase_voltage(
         &mut driver,
-        foc::park_clarke::MovingReferenceFrame {
+        foc::park_clarke::RotatingReferenceFrame {
             d: I16F16::ZERO,
             q: I16F16::ONE,
         },

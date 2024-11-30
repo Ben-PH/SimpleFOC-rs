@@ -1,7 +1,7 @@
 pub mod control_utils;
 use core::mem::MaybeUninit;
 use discrete_count::{re_exports::fixed::types::I16F16, CountRaw, CountReader, Counter};
-use foc::park_clarke::MovingReferenceFrame;
+use foc::{park_clarke::RotatingReferenceFrame, pwm::Modulation};
 use pid::Pid;
 
 use crate::common::helpers::DutyCycle;
@@ -190,10 +190,10 @@ pub trait FOController: MotorPins {
     // todo: fn init_foc_algo(&mut self) -> u32; // why the u32?
     // todo: fn foc_loop(&mut self) -> !;
     // todo: fn move_command(motion: MotionCtrl);
-    fn set_phase_voltage(&mut self, voltages_q_d: MovingReferenceFrame, phase_angle: PhaseAngle) {
+    fn set_phase_voltage(&mut self, voltages_q_d: RotatingReferenceFrame, phase_angle: PhaseAngle) {
         let (sin_angle, cos_angle) = cordic::sin_cos(phase_angle.0);
         let orth_v = foc::park_clarke::inverse_park(cos_angle, sin_angle, voltages_q_d);
-        let [phase_a, phase_b, phase_c] = foc::pwm::svpwm(orth_v);
+        let [phase_a, phase_b, phase_c] = foc::pwm::SpaceVector::modulate(orth_v);
         self.set_pwms(DutyCycle(phase_a), DutyCycle(phase_b), DutyCycle(phase_c))
     }
     fn set_psu_millivolt(&self, mv: u16);
