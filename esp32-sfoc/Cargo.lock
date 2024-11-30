@@ -91,15 +91,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "counters"
-version = "0.0.2"
-
-[[package]]
-name = "counters"
-version = "0.0.2"
-source = "git+https://github.com/Ben-PH/counter-proposal.git#57c9913a3a75f8ebf8218b745b208b90dfe9d49a"
-
-[[package]]
 name = "critical-section"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -145,6 +136,23 @@ dependencies = [
  "quote",
  "syn 2.0.61",
 ]
+
+[[package]]
+name = "discrete_count"
+version = "0.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72946f16007d8d92d6ef8f8d3b8d274059435ae5d39dc7dc824fd6d68b18b3ce"
+dependencies = [
+ "discrete_count_core",
+ "fixed",
+ "typenum",
+]
+
+[[package]]
+name = "discrete_count_core"
+version = "0.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f112db7875891b885dd69e43af92618d79fef9a803b0a513b601818b7fc5cdb"
 
 [[package]]
 name = "document-features"
@@ -355,25 +363,23 @@ dependencies = [
 name = "esp32-sfoc"
 version = "0.1.0"
 dependencies = [
- "counters 0.0.2",
+ "discrete_count",
  "embedded-hal",
  "embedded-time",
  "esp-backtrace",
  "esp-hal",
  "esp-println",
- "fixed",
  "foc",
  "fugit",
  "log",
  "sfoc-rs",
- "typenum",
 ]
 
 [[package]]
 name = "fixed"
-version = "1.27.0"
+version = "1.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2fc715d38bea7b5bf487fcd79bcf8c209f0b58014f3018a7a19c2b855f472048"
+checksum = "85c6e0b89bf864acd20590dbdbad56f69aeb898abfc9443008fd7bd48b2cc85a"
 dependencies = [
  "az",
  "bytemuck",
@@ -812,20 +818,18 @@ dependencies = [
 
 [[package]]
 name = "sfoc-rs"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "cordic",
- "counters 0.0.2 (git+https://github.com/Ben-PH/counter-proposal.git)",
+ "discrete_count",
  "embedded-hal",
  "embedded-time",
- "fixed",
  "foc",
  "fugit",
  "log",
  "micromath",
  "num 0.4.3",
  "pid",
- "typenum",
 ]
 
 [[package]]

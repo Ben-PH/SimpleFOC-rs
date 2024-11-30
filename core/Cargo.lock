@@ -36,6 +36,11 @@ dependencies = [
 ]
 
 [[package]]
+name = "counters"
+version = "0.0.2"
+source = "git+https://github.com/Ben-PH/counter-proposal.git#57c9913a3a75f8ebf8218b745b208b90dfe9d49a"
+
+[[package]]
 name = "crunchy"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -321,10 +326,14 @@ dependencies = [
 
 [[package]]
 name = "sfoc-rs"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "cordic",
+<<<<<<< HEAD
  "discrete_count",
+=======
+ "counters",
+>>>>>>> main
  "embedded-hal",
  "embedded-time",
  "foc",

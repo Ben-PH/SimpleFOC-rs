@@ -47,3 +47,9 @@ where
         let _ = SetDutyCycle::set_duty_cycle_fully_off(&mut self.member_a);
     }
 }
+
+pub struct VoltageConfig {
+    pub psu_millivolts: u16,
+    pub limit_millivolts: u16,
+    // todo: think about where the pwm ferquency needs to go.
+}

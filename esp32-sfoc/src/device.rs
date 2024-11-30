@@ -168,7 +168,6 @@ where
     }
 }
 
-
 impl<'d, PwmOp, A, B, C, Pos> FOController for Esp3PWM<'d, PwmOp, A, B, C, Pos>
 where
     PwmPin<'d, A, PwmOp, 0, true>: SetDutyCycle,
