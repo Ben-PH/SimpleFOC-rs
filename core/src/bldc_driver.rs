@@ -1,5 +1,5 @@
+use discrete_count::re_exports::typenum::{IsGreater, True, Unsigned, U0};
 use embedded_hal::pwm::SetDutyCycle;
-use typenum::{IsGreater, True, Unsigned, U0};
 
 use crate::common::helpers::{DutyCycle, Triplet};
 
