@@ -1,6 +1,5 @@
-use core::{mem::MaybeUninit, ops::Sub};
-use counters::{Counter, TimeCount};
-use fixed::types::I16F16;
+use core::mem::MaybeUninit;
+use discrete_count::{re_exports::fixed::types::I16F16, CountRaw, CountReader, Counter};
 use foc::park_clarke::MovingReferenceFrame;
 use pid::Pid;
 
@@ -35,19 +34,24 @@ pub struct Amps(pub I16F16);
 // TODO: setup BufSize so that its length is typed. Len 1: position, 2: vel, and so on
 //       ...with arbitrary buffer-len, we can use math-magic like taylor siries and
 //       other cool things to get nice analysis
-pub struct MotionTracker<C: TimeCount, P: Counter, const BUF_SIZE: usize> {
-    pub clock_source: C,
+pub struct MotionTracker<T: Counter, P: Counter, const BUF_SIZE: usize> {
+    pub clock_source: T,
     pos_source: P,
-    mvmnt_buffer: [MaybeUninit<(P::RawData, C::RawData)>; BUF_SIZE],
+    mvmnt_buffer: [MaybeUninit<(CountRaw<T>, CountRaw<P>)>; BUF_SIZE],
+
     head: u8,
     entry_count: u8,
 }
 // + NonZero + typenum::IsLess<typenum::U255, Output = typenum::True>
-impl<T: TimeCount, P: Counter, const BUF_SIZE: usize> MotionTracker<T, P, BUF_SIZE> {
-    pub fn init(clock_source: T, instant: T::RawData, pos_source: P, pos: P::RawData) -> Self {
-        let mut mvmnt_buffer: [MaybeUninit<(P::RawData, T::RawData)>; BUF_SIZE] =
-            unsafe { MaybeUninit::uninit().assume_init() };
-        mvmnt_buffer[0] = MaybeUninit::new((pos, instant));
+impl<T: Counter, P: Counter, const BUF_SIZE: usize> MotionTracker<T, P, BUF_SIZE> {
+    pub fn init(
+        clock_source: T,
+        instant: <T::Reader as CountReader>::RawData,
+        pos_source: P,
+        pos: <P::Reader as CountReader>::RawData,
+    ) -> Self {
+        let mut mvmnt_buffer: [_; BUF_SIZE] = unsafe { MaybeUninit::uninit().assume_init() };
+        mvmnt_buffer[0] = MaybeUninit::new((instant, pos));
         Self {
             clock_source,
             pos_source,
@@ -57,8 +61,8 @@ impl<T: TimeCount, P: Counter, const BUF_SIZE: usize> MotionTracker<T, P, BUF_SI
         }
     }
     fn push_update(&mut self) {
-        let pos = self.pos_source.try_read_raw();
-        let instant = self.clock_source.try_now_raw();
+        let pos = <T::Reader as CountReader>::read();
+        let instant = <P::Reader as CountReader>::read();
         let (Ok(pos), Ok(instant)) = (pos, instant) else {
             panic!("todo. just read the code and weep...");
         };
@@ -68,31 +72,6 @@ impl<T: TimeCount, P: Counter, const BUF_SIZE: usize> MotionTracker<T, P, BUF_SI
         if self.entry_count != (BUF_SIZE as u8) {
             self.entry_count += 1;
         }
-    }
-    pub fn latest_pos(&self) -> P::RawData {
-        let head = self.mvmnt_buffer[self.head as usize];
-        unsafe { head.assume_init() }.0
-    }
-    pub fn latest_vel(&self) -> (P::CountMeasure, T::TickMeasure)
-    where
-        T::RawData: num::CheckedSub,
-        P::RawData: Sub<P::RawData, Output = P::RawData>,
-    {
-        assert!(self.entry_count > 1, "todo: getting latest velocity should by type-constrained to when it's tracked two position/instant pairs");
-        let _pta = self.mvmnt_buffer[self.head as usize];
-        let prev = if self.head == 0 {
-            BUF_SIZE - 1
-        } else {
-            self.head as usize - 1
-        };
-        let pt_before = self.mvmnt_buffer[self.head as usize];
-        let pt_latest = self.mvmnt_buffer[prev];
-        let (pt_before, pt_latest) = unsafe { (pt_before.assume_init(), pt_latest.assume_init()) };
-        let raw_diff: T::RawData = num::CheckedSub::checked_sub(&pt_latest.1, &pt_before.1)
-            .unwrap()
-            .into();
-        let time_diff = T::raw_to_measure(raw_diff);
-        (P::raw_to_measure(pt_latest.0 - pt_before.0), time_diff)
     }
 }
 
@@ -134,27 +113,27 @@ pub trait MotionControl: Sized {
     // fn do_motion_impl<M: MotionControlMode>(&mut self, motion: M);
 }
 
-pub struct DefaultMotionCtrl<T: TimeCount, P: Counter> {
+pub struct DefaultMotionCtrl<T: Counter, P: Counter> {
     motion_down_sample: Option<(u32, u32)>,
     pub motion_tracker: MotionTracker<T, P, 4>,
 }
 
-impl<T: TimeCount, P: Counter> DefaultMotionCtrl<T, P> {
-    pub fn new(
-        motion_down_sample: Option<(u32, u32)>,
-        motion_tracker: MotionTracker<T, P, 4>,
-    ) -> Self {
-        Self {
-            motion_down_sample,
-            motion_tracker,
-        }
-    }
-}
+// impl<T: Count, P: Counter> DefaultMotionCtrl<T, P> {
+//     pub fn new(
+//         motion_down_sample: Option<(u32, u32)>,
+//         motion_tracker: MotionTracker<T, P, 4>,
+//     ) -> Self {
+//         Self {
+//             motion_down_sample,
+//             motion_tracker,
+//         }
+//     }
+// }
 
-impl<T: TimeCount, P: Counter> MotionControl for DefaultMotionCtrl<T, P>
+impl<T: Counter, P: Counter> MotionControl for DefaultMotionCtrl<T, P>
 where
-    T::Error: core::fmt::Display + core::fmt::Debug,
-    T::RawData: num::CheckedSub,
+    <T::Reader as CountReader>::ReadErr: core::fmt::Display + core::fmt::Debug,
+    <T::Reader as CountReader>::RawData: num::CheckedSub,
 {
     type PosSource = P;
 

@@ -7,7 +7,7 @@
 /// chosen such that a matching back-EMF is generated at around 30RPM.
 use std::time::SystemTime;
 
-use fixed::types::I16F16;
+use discrete_count::re_exports::fixed::types::I16F16;
 use foc::park_clarke;
 use sfoc_rs::{
     self,
@@ -24,7 +24,6 @@ fn main() {
 // future, there will also be examples on how to write a portable implementation.
 fn foc_main(mut driver: SomePlatformSpecificImpl) -> ! {
     loop {
-
         // The "FO" part of the FOC. Here, we derive the position of the motor. We will use this to
         // determine which electro-magnetic-field angle we wish to set.
         //
@@ -43,7 +42,6 @@ fn foc_main(mut driver: SomePlatformSpecificImpl) -> ! {
         // and use the ideal, though computationally heavy, scale-vector calculation for desired
         // pwm duty-cycles, i.e. the percentage-of-maximum that each motor-phase will be set to
         let [dc_a, dc_b, dc_c] = foc::pwm::svpwm(inv_parke);
-
 
         //... and set them.
         driver.set_pwms(DutyCycle(dc_a), DutyCycle(dc_b), DutyCycle(dc_c));
@@ -66,7 +64,10 @@ impl MotorPins for SomePlatformSpecificImpl {
         dc_b: sfoc_rs::common::helpers::DutyCycle,
         dc_c: sfoc_rs::common::helpers::DutyCycle,
     ) {
-        println!("DCs set: {:>+6.4}|{:>+6.4}|{:>+6.4}", dc_a.0, dc_b.0, dc_c.0);
+        println!(
+            "DCs set: {:>+6.4}|{:>+6.4}|{:>+6.4}",
+            dc_a.0, dc_b.0, dc_c.0
+        );
     }
 }
 
@@ -77,7 +78,10 @@ impl PosSensor for SomePlatformSpecificImpl {
     /// might be milliradians, for example.
     /// In this case, we use std-time to get millis that rolls back to zero every 2 seconds
     fn get_position_um(&self) -> Self::Output {
-        let now = std::time::SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis();
+        let now = std::time::SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_millis();
         let millis = now % 2000;
         let frac = I16F16::from_num(millis) / 2000;
         I16F16::TAU * frac
