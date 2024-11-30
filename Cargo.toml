@@ -1,0 +1,16 @@
+[package]
+name = "sfoc_rs"
+version = "0.3.0"
+authors = ["Ben PHL <benphawke@gmail.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[workspace]
+members = [
+	"core",
+	"esp32_sfoc"
+]
+
+
+[dependencies]
+sfoc_rs_core = { version = "0.0.1", path = "./core" }
