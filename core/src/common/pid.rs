@@ -1,4 +1,5 @@
 use core::ops::Deref;
+use esp_backtrace as _;
 
 use embedded_time::{clock::Error as ClockError, Clock, Instant};
 

@@ -6,26 +6,46 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-discrete_count = {git = "https://github.com/Ben-PH/discrete_count", rev = "15f55d4680b418b6fa5bb954c3c320b89af6ee9e", features = ["typenum", "fixed"]}
-embedded-hal = "1.0.0"
-embedded-time = "0.12.1"
 esp-backtrace = { version = "0.14.2", features = [
-    "esp32",
+    "esp32c3",
     "exception-handler",
     "panic-handler",
     "defmt",
-    # "println",
-    # "uart"
+]}
+
+esp-hal = { version = "0.22.0", features = [
+    "esp32c3",
+    "defmt",
 ] }
-esp-hal = { version = "0.17.0", features = [ "esp32" ] }
-# esp-println = { version = "0.12.0"  }
-# esp-println = { version = "0.11.0", features = ["esp32", "log"] }
+defmt            = "0.3.8"
+defmt-rtt        = "0.4.1"
+critical-section = "1.2.0"
+
+discrete_count = {git = "https://github.com/Ben-PH/discrete_count", rev = "15f55d4680b418b6fa5bb954c3c320b89af6ee9e", features = ["typenum", "fixed"]}
+embedded-hal = "1.0.0"
+embedded-time = "0.12.1"
+
+
 fixed = "1.27.0"
 foc = "0.3.0"
 fugit = "0.3.7"
 log = { version = "0.4.20" }
-sfoc_rs_core = {path = "../core"}
+# sfoc_rs_core = {path = "../core"}
 typenum = "1.17.0"
-# counters = {git = "https://github.com/Ben-PH/counter-proposal.git", rev = "07d19fe62c36219663c3917bb8cf1fe5eb752eaa"}
-# counters = {path = "../../../embedded_work/counters/"}
+
+
+
+[profile.dev]
+# Rust debug is too slow.
+# For debug builds always builds with some optimization
+opt-level = "s"
+
+[profile.release]
+codegen-units = 1        # LLVM can perform better optimizations using a single thread
+debug = 2
+debug-assertions = false
+incremental = false
+lto = 'fat'
+opt-level = 's'
+overflow-checks = false
 

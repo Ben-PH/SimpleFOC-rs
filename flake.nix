@@ -1,5 +1,5 @@
 {
-  description = "A devShell example";
+  description = "SimpleFOC-rs flake";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -7,25 +7,22 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    esp32 = {
-      url = "github:knarkzel/esp32";
-      inputs.nixpkgs.follows = "nixpkgs";
+    esp-rs-nix = {
+      url = "github:crabdancing/esp-rs-nix";
     };
+    nixpkgs-esp-dev = {
+      url = "github:mirrexagon/nixpkgs-esp-dev";
+    };
+
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = {
-    esp32,
-    nixpkgs,
-    rust-overlay,
-    flake-utils,
-    ...
-  }:
-    flake-utils.lib.eachDefaultSystem (
+  outputs = {...} @ inputs:
+    inputs.flake-utils.lib.eachDefaultSystem (
       system: let
-        idf-rust = esp32.packages.x86_64-linux.esp32;
-        overlays = [(import rust-overlay)];
-        pkgs = import nixpkgs {
+        esp-rust = inputs.esp-rs-nix.packages.${pkgs.system}.default;
+        overlays = [(import inputs.rust-overlay)];
+        pkgs = import inputs.nixpkgs {
           inherit system overlays;
         };
       in {
@@ -36,14 +33,12 @@
               pkg-config
               eza
               fd
-              rust-bin.stable.latest.default
             ])
             ++ [
-              idf-rust
+              esp-rust
             ];
 
           shellHook = ''
-            export PATH="${idf-rust}/.rustup/toolchains/esp/bin:$PATH"
             export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/src"
           '';
         };

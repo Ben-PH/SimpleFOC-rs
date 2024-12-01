@@ -14,11 +14,13 @@ use esp_hal::{
     prelude::*,
 };
 
+use esp_backtrace as _;
 use fixed::types::I16F16;
 use sfoc_rs_core::{
     bldc_driver::MotorPins,
     foc_control::{FOController, PhaseAngle},
 };
+
 // use sfoc_rs_core::
 #[esp_hal::entry]
 fn main() -> ! {

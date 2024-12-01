@@ -11,7 +11,6 @@ members = [
 	"esp32_sfoc"
 ]
 
-
 [dependencies]
 sfoc_rs_core = { version = "0.0.1", path = "./core" }
 
