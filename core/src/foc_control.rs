@@ -38,21 +38,25 @@ pub struct Amps(pub I16F16);
 pub struct MotionTracker<T: Counter, P: Counter, const BUF_SIZE: usize> {
     pub clock_source: T,
     pos_source: P,
-    mvmnt_buffer: [MaybeUninit<(CountRaw<T>, CountRaw<P>)>; BUF_SIZE],
+    mvmnt_buffer: [MaybeUninit<(CountRaw<P>, CountRaw<T>)>; BUF_SIZE],
 
     head: u8,
     entry_count: u8,
 }
 // + NonZero + typenum::IsLess<typenum::U255, Output = typenum::True>
-impl<T: Counter, P: Counter, const BUF_SIZE: usize> MotionTracker<T, P, BUF_SIZE> {
+impl<T, P, const BUF_SIZE: usize> MotionTracker<T, P, BUF_SIZE>
+where
+    T: Counter<Reader = T> + CountReader,
+    P: Counter<Reader = P> + CountReader,
+{
     pub fn init(
         clock_source: T,
-        instant: <T::Reader as CountReader>::RawData,
+        instant: <<T as Counter>::Reader as CountReader>::RawData,
         pos_source: P,
-        pos: <P::Reader as CountReader>::RawData,
+        pos: <<P as Counter>::Reader as CountReader>::RawData,
     ) -> Self {
         let mut mvmnt_buffer: [_; BUF_SIZE] = unsafe { MaybeUninit::uninit().assume_init() };
-        mvmnt_buffer[0] = MaybeUninit::new((instant, pos));
+        mvmnt_buffer[0] = MaybeUninit::new((pos, instant));
         Self {
             clock_source,
             pos_source,
@@ -62,8 +66,8 @@ impl<T: Counter, P: Counter, const BUF_SIZE: usize> MotionTracker<T, P, BUF_SIZE
         }
     }
     fn push_update(&mut self) {
-        let pos = <T::Reader as CountReader>::read();
-        let instant = <P::Reader as CountReader>::read();
+        let pos = self.pos_source.read();
+        let instant = self.clock_source.read();
         let (Ok(pos), Ok(instant)) = (pos, instant) else {
             panic!("todo. just read the code and weep...");
         };
@@ -155,10 +159,14 @@ pub struct DefaultMotionCtrl<T: Counter, P: Counter> {
 //     }
 // }
 
-impl<T: Counter, P: Counter> MotionControl for DefaultMotionCtrl<T, P>
+impl<T, P> MotionControl for DefaultMotionCtrl<T, P>
 where
+    T: Counter<Reader = T> + CountReader,
+    P: Counter<Reader = P> + CountReader,
     <T::Reader as CountReader>::ReadErr: core::fmt::Display + core::fmt::Debug,
     <T::Reader as CountReader>::RawData: num::CheckedSub,
+    T: Counter,
+    P: Counter,
 {
     type PosSource = P;
 
