@@ -2,13 +2,13 @@ use discrete_count::CountReader;
 use esp_hal::pcnt::unit;
 
 /// micrometers for each pulse
-pub struct EncoderPosn {
+pub struct EncoderPosn<'a, const NUM: usize> {
     // the underlying esp32 pulse count reader
-    unit: unit::Unit,
+    unit: unit::Unit<'a, NUM>,
 }
 
-impl EncoderPosn {
-    pub fn new(unit: unit::Unit) -> Self {
+impl<'a, const UNIT_NUM: usize> EncoderPosn<'a, UNIT_NUM> {
+    pub fn new(unit: unit::Unit<'a, UNIT_NUM>) -> Self {
         Self { unit }
     }
 }
@@ -26,7 +26,7 @@ impl CountReader for ABReader {
     }
 }
 
-impl discrete_count::Counter for EncoderPosn {
+impl<const UNIT_NUM: usize> discrete_count::Counter for EncoderPosn<'_, UNIT_NUM> {
     type Reader = ABReader;
 
     type Resolution = u64;
