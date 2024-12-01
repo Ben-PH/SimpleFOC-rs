@@ -33,6 +33,8 @@
             fd
             idf-rust
             rust-bin.stable.latest.default
+            cargo-make
+
 
 
           ];
