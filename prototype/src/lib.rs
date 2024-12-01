@@ -6,7 +6,7 @@
 /// library.
 
 mod pin_numbers {
-    use typenum::*;
+    use discrete_count::re_exports::typenum::*;
     pub type PhaseA = U3;
     pub type PhaseB = U4;
     pub type PhaseC = U5;
@@ -16,8 +16,8 @@ mod pin_numbers {
 }
 
 mod initial_config {
-
-    use sfoc_rs::{common::types::VelocityPID, pid_reexported::Pid};
+    use discrete_count::re_exports::typenum::U12;
+    use sfoc_rs::{foc_control::VelocityPID, pid_reexported::Pid};
 
     pub fn initial_velocity_pid() -> VelocityPID {
         let mut v_pid = VelocityPID(Pid::new(0.0, 6.0));
@@ -27,13 +27,13 @@ mod initial_config {
         v_pid
     }
     // 12 volts
-    pub type DriverVoltagePwrSup = typenum::U12;
+    pub type DriverVoltagePwrSup = U12;
 }
 
+use discrete_count::Counter;
 use embedded_hal::{digital::InputPin, pwm::SetDutyCycle};
-use embedded_time::Clock;
 use initial_config::*;
-use sfoc_rs::{base_traits::foc_control::FOController, common::helpers::Triplet};
+use sfoc_rs::{common::helpers::Triplet, foc_control::FOController};
 
 // as it currently stands, the user will need to use platform specific code to get the right pins.
 // This can very in complexity, but the goal is to make it
@@ -78,7 +78,7 @@ fn entry<
 >(
     motor_pins: MPinSource,
     encoder_pins: (EncA, EncB),
-    time_getter: impl Clock,
+    time_getter: impl Counter,
 ) -> ! {
     // ...my thinking being is that the hardware support library defines how the pins are made
     // available/initialised. e.g.:

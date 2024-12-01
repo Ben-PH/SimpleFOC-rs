@@ -17,5 +17,6 @@ sfoc_rs_core = { version = "0.0.1", path = "./core" }
 
 [dev-dependencies]
 cordic = "0.1.5"
-discrete_count = { version = "0.0.2", features = ["fixed"] }
+discrete_count = { version = "0.0.2", features = ["fixed", "typenum"] }
+embedded-hal = "1.0.0"
 foc = "0.3.0"

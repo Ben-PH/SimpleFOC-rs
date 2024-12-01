@@ -1,0 +1,9 @@
+[package]
+name = "prototype"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+discrete_count = { version = "0.0.2", features = ["fixed", "typenum"] }
+embedded-hal = "1.0.0"
+sfoc_rs = { version = "0.3.0", path = ".." }

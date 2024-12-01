@@ -183,6 +183,7 @@ checksum = "72946f16007d8d92d6ef8f8d3b8d274059435ae5d39dc7dc824fd6d68b18b3ce"
 dependencies = [
  "discrete_count_core",
  "fixed",
+ "typenum",
 ]
 
 [[package]]
@@ -757,6 +758,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "prototype"
+version = "0.1.0"
+dependencies = [
+ "discrete_count 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "embedded-hal",
+ "sfoc_rs",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -871,6 +881,7 @@ version = "0.3.0"
 dependencies = [
  "cordic",
  "discrete_count 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "embedded-hal",
  "foc",
  "sfoc_rs_core",
 ]
