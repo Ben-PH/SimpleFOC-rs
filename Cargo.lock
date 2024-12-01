@@ -758,15 +758,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "prototype"
-version = "0.1.0"
-dependencies = [
- "discrete_count 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "embedded-hal",
- "sfoc_rs",
-]
-
-[[package]]
 name = "quote"
 version = "1.0.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"

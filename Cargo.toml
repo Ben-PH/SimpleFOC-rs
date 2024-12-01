@@ -7,8 +7,7 @@ license = "MIT OR Apache-2.0"
 
 [workspace]
 members = [
-	"core",
-	"esp32_sfoc"
+	"core", "platforms/esp32_sfoc",
 ]
 
 
