@@ -19,6 +19,10 @@ esp-backtrace = { version = "0.14.2", features = [
     # "println",
     # "uart"
 ] }
+
+critical-section = "1.2.0"
+
+
 esp-hal = { version = "0.22.0", features = [ "esp32", "defmt" ] }
 fixed = "1.27.0"
 foc = "0.3.0"
