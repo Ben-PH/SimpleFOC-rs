@@ -9,4 +9,9 @@ pub mod foc_control;
 pub mod hw_drivers;
 pub mod pos_sensor;
 
-pub use pid as pid_reexported;
+pub mod rexports {
+    pub use cordic;
+    pub use discrete_count;
+    pub use foc;
+    pub use pid;
+}

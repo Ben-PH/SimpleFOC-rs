@@ -164,7 +164,6 @@ where
     T: Counter<Reader = T> + CountReader,
     P: Counter<Reader = P> + CountReader,
     <T::Reader as CountReader>::ReadErr: core::fmt::Display + core::fmt::Debug,
-    <T::Reader as CountReader>::RawData: num::CheckedSub,
     T: Counter,
     P: Counter,
 {

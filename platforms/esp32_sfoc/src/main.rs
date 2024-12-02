@@ -16,7 +16,7 @@ use esp_hal::{
 
 use esp_backtrace as _;
 use fixed::types::I16F16;
-use sfoc_rs_core::{
+use sfoc_rs::{
     bldc_driver::MotorPins,
     foc_control::{FOController, PhaseAngle},
 };

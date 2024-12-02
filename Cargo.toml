@@ -10,12 +10,10 @@ members = [
 	"core",
 	"platforms/esp32_sfoc",
 ]
+exclude = [
+	"prototype"
+]
 
 [dependencies]
 sfoc_rs_core = { version = "0.0.1", path = "./core" }
 
-[dev-dependencies]
-cordic = "0.1.5"
-discrete_count = {git = "https://github.com/Ben-PH/discrete_count", features = ["typenum", "fixed"]}
-embedded-hal = "1.0.0"
-foc = "0.3.0"

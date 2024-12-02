@@ -25,15 +25,12 @@ discrete_count = {git = "https://github.com/Ben-PH/discrete_count", rev = "15f55
 embedded-hal = "1.0.0"
 embedded-time = "0.12.1"
 
-
 fixed = "1.27.0"
 foc = "0.3.0"
 fugit = "0.3.7"
 log = { version = "0.4.20" }
-sfoc_rs_core = {path = "../../core"}
+sfoc_rs = {path = "../.."}
 typenum = "1.17.0"
-
-
 
 [profile.dev]
 # Rust debug is too slow.
