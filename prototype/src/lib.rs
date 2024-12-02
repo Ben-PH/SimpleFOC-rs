@@ -17,7 +17,7 @@ mod pin_numbers {
 
 mod initial_config {
     use discrete_count::re_exports::typenum::U12;
-    use sfoc_rs::{foc_control::VelocityPID, pid_reexported::Pid};
+    use sfoc_rs::{foc_control::VelocityPID, rexports::pid::Pid};
 
     pub fn initial_velocity_pid() -> VelocityPID {
         let mut v_pid = VelocityPID(Pid::new(0.0, 6.0));
