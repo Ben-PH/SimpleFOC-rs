@@ -7,11 +7,17 @@
 /// chosen such that a matching back-EMF is generated at around 30RPM.
 use std::time::SystemTime;
 
-use discrete_count::re_exports::fixed::types::I16F16;
-use foc::{park_clarke, pwm::Modulation};
 use sfoc_rs::{
-    self, bldc_driver::MotorPins, common::helpers::DutyCycle, foc_control::FOController,
+    self,
+    bldc_driver::MotorPins,
+    common::helpers::DutyCycle,
+    foc_control::FOController,
     pos_sensor::PosSensor,
+    rexports::{
+        cordic,
+        discrete_count::re_exports::fixed::types::I16F16,
+        foc::{self, park_clarke, pwm::Modulation},
+    },
 };
 
 fn main() {
@@ -28,6 +34,8 @@ fn foc_main(mut driver: SomePlatformSpecificImpl) -> ! {
         //
         // In this example, we've hacked the sensor such that this method is hard-coded to rotate at 30rpm
         let angle = driver.get_position_um();
+        // TODO: make an interface so you just... set the angle.
+        //       this will allow `cordic` to not need re-exporting
         let (sin, cos) = cordic::sin_cos(angle);
 
         // we are setting 10% in the quadrature (torque) and 0% direct-axis

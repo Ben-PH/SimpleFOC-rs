@@ -18,14 +18,10 @@ esp-backtrace = { version = "0.14.2", features = [
     # "uart"
 ] }
 esp-hal = { version = "0.22.0", features = [ "esp32" ] }
-# esp-println = { version = "0.12.0"  }
-# esp-println = { version = "0.11.0", features = ["esp32", "log"] }
 fixed = "1.27.0"
 foc = "0.3.0"
 fugit = "0.3.7"
 log = { version = "0.4.20" }
-sfoc_rs_core = {path = "../../core"}
+sfoc_rs = {path = "../.."}
 typenum = "1.17.0"
-# counters = {git = "https://github.com/Ben-PH/counter-proposal.git", rev = "07d19fe62c36219663c3917bb8cf1fe5eb752eaa"}
-# counters = {path = "../../../embedded_work/counters/"}
 
