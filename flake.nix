@@ -34,6 +34,7 @@
               eza
               fd
               cargo-make
+              gnumake
             ])
             ++ [
               esp-rust
