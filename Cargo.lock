@@ -192,8 +192,9 @@ dependencies = [
 [[package]]
 name = "discrete_count"
 version = "0.0.2"
+source = "git+https://github.com/Ben-PH/discrete_count?rev=15f55d4680b418b6fa5bb954c3c320b89af6ee9e#15f55d4680b418b6fa5bb954c3c320b89af6ee9e"
 dependencies = [
- "discrete_count_core 0.0.2",
+ "discrete_count_core",
  "fixed",
  "typenum",
 ]
@@ -201,9 +202,9 @@ dependencies = [
 [[package]]
 name = "discrete_count"
 version = "0.0.2"
-source = "git+https://github.com/Ben-PH/discrete_count?rev=15f55d4680b418b6fa5bb954c3c320b89af6ee9e#15f55d4680b418b6fa5bb954c3c320b89af6ee9e"
+source = "git+https://github.com/Ben-PH/discrete_count?rev=2b04f9d6953ffeba56fb4ee36ad4ca3522457250#2b04f9d6953ffeba56fb4ee36ad4ca3522457250"
 dependencies = [
- "discrete_count_core 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "discrete_count_core",
  "fixed",
  "typenum",
 ]
@@ -213,14 +214,10 @@ name = "discrete_count"
 version = "0.0.2"
 source = "git+https://github.com/Ben-PH/discrete_count#2b04f9d6953ffeba56fb4ee36ad4ca3522457250"
 dependencies = [
- "discrete_count_core 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "discrete_count_core",
  "fixed",
  "typenum",
 ]
-
-[[package]]
-name = "discrete_count_core"
-version = "0.0.2"
 
 [[package]]
 name = "discrete_count_core"
@@ -259,12 +256,9 @@ name = "embassy-futures"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f878075b9794c1e4ac788c95b728f26aa6366d32eeb10c7051389f898f7d067"
-<<<<<<< HEAD
 dependencies = [
  "defmt",
 ]
-=======
->>>>>>> b562633
 
 [[package]]
 name = "embassy-sync"
@@ -274,10 +268,7 @@ checksum = "3899a6e39fa3f54bf8aaf00979f9f9c0145a522f7244810533abbb748be6ce82"
 dependencies = [
  "cfg-if",
  "critical-section",
-<<<<<<< HEAD
  "defmt",
-=======
->>>>>>> b562633
  "embedded-io-async",
  "futures-sink",
  "futures-util",
@@ -355,15 +346,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "embedded-hal-async"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c4c685bbef7fe13c3c6dd4da26841ed3980ef33e841cddfa15ce8a8fb3f1884"
-dependencies = [
- "embedded-hal 1.0.0",
-]
-
-[[package]]
 name = "embedded-hal-nb"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -378,12 +360,9 @@ name = "embedded-io"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "edd0f118536f44f5ccd48bcb8b111bdc3de888b58c74639dfb034a357d0f206d"
-<<<<<<< HEAD
 dependencies = [
  "defmt",
 ]
-=======
->>>>>>> b562633
 
 [[package]]
 name = "embedded-io-async"
@@ -391,10 +370,7 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3ff09972d4073aa8c299395be75161d582e7629cd663171d62af73c8d50dba3f"
 dependencies = [
-<<<<<<< HEAD
  "defmt",
-=======
->>>>>>> b562633
  "embedded-io",
 ]
 
@@ -505,10 +481,7 @@ dependencies = [
  "cfg-if",
  "chrono",
  "critical-section",
-<<<<<<< HEAD
  "defmt",
-=======
->>>>>>> b562633
  "delegate",
  "document-features",
  "embassy-embedded-hal",
@@ -623,6 +596,7 @@ dependencies = [
  "foc",
  "fugit",
  "log",
+ "sfoc_rs_core",
  "typenum",
 ]
 
@@ -1160,11 +1134,7 @@ name = "sfoc_rs_core"
 version = "0.0.1"
 dependencies = [
  "cordic",
-<<<<<<< HEAD
- "discrete_count 0.0.2 (git+https://github.com/Ben-PH/discrete_count?rev=15f55d4680b418b6fa5bb954c3c320b89af6ee9e)",
-=======
- "discrete_count 0.0.2",
->>>>>>> b562633
+ "discrete_count 0.0.2 (git+https://github.com/Ben-PH/discrete_count?rev=2b04f9d6953ffeba56fb4ee36ad4ca3522457250)",
  "embedded-hal 1.0.0",
  "embedded-time",
  "foc",

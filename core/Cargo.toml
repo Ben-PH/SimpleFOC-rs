@@ -15,5 +15,4 @@ log = { version = "0.4.20" }
 micromath = "2.1.0"
 pid = "4.0.0"
 num = { version = "0.4.3", default-features = false }
-# discrete_count = {git = "https://github.com/Ben-PH/discrete_count", rev = "2b04f9d6953ffeba56fb4ee36ad4ca3522457250", features = ["typenum", "fixed"]}
-discrete_count = {path = "../../discrete_counter", features = ["typenum", "fixed"]}
+discrete_count = {git = "https://github.com/Ben-PH/discrete_count", rev = "2b04f9d6953ffeba56fb4ee36ad4ca3522457250", features = ["typenum", "fixed"]}
