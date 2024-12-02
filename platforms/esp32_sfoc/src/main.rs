@@ -5,6 +5,7 @@ mod device;
 mod posn_encoder;
 mod time_source;
 
+use defmt_rtt as _;
 use device::Esp3PWM;
 use esp_backtrace as _;
 use esp_hal::{

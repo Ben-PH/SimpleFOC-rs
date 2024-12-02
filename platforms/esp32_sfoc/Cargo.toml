@@ -6,6 +6,8 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+defmt = "0.3.10"
+defmt-rtt = "0.4.1"
 discrete_count = {git = "https://github.com/Ben-PH/discrete_count", rev = "15f55d4680b418b6fa5bb954c3c320b89af6ee9e", features = ["typenum", "fixed"]}
 embedded-hal = "1.0.0"
 embedded-time = "0.12.1"
@@ -17,7 +19,7 @@ esp-backtrace = { version = "0.14.2", features = [
     # "println",
     # "uart"
 ] }
-esp-hal = { version = "0.22.0", features = [ "esp32" ] }
+esp-hal = { version = "0.22.0", features = [ "esp32", "defmt" ] }
 fixed = "1.27.0"
 foc = "0.3.0"
 fugit = "0.3.7"
