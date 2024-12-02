@@ -33,6 +33,7 @@
               pkg-config
               eza
               fd
+              cargo-make
             ])
             ++ [
               esp-rust

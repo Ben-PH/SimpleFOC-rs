@@ -8,8 +8,8 @@ mod time_source;
 use device::Esp3PWM;
 use esp_backtrace as _;
 use esp_hal::{
-    clock::{ClockControl, Clocks},
-    gpio::IO,
+    clock::Clocks,
+    mcpwm::{operator::PwmPinConfig, timer::PwmWorkingMode, McPwm, PeripheralClockConfig},
     peripherals::Peripherals,
     prelude::*,
 };
@@ -24,20 +24,19 @@ use sfoc_rs_core::{
 // use sfoc_rs_core::
 #[esp_hal::entry]
 fn main() -> ! {
-    let peripherals = Peripherals::take();
-    let system = peripherals.SYSTEM.split();
-    let clock_ctrl = ClockControl::boot_defaults(system.clock_control);
-    let clocks: Clocks = clock_ctrl.freeze();
+    let peripherals = esp_hal::init(esp_hal::Config::default());
 
-    let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
-    let pins = io.pins;
+    let pin1 = peripherals.GPIO1;
+    let pin2 = peripherals.GPIO2;
+    let pin3 = peripherals.GPIO3;
+    let pin4 = peripherals.GPIO4;
+    let pin5 = peripherals.GPIO5;
 
-    let mut driver = Esp3PWM::new(
-        &clocks,
+    let mut driver: Esp3PWM<'_, _, posn_encoder::EncoderPosn<'_, 0>> = Esp3PWM::new(
         peripherals.MCPWM0,
         peripherals.PCNT,
-        (pins.gpio1, pins.gpio2, pins.gpio3),
-        (pins.gpio4, pins.gpio5),
+        (pin1, pin2, pin3),
+        (pin4, pin5),
     );
 
     FOController::set_phase_voltage(
