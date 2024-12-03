@@ -21,7 +21,7 @@ impl CountReader for ABReader {
 
     type RawData = ();
 
-    fn read() -> Result<Self::RawData, Self::ReadErr> {
+    fn read(&self) -> Result<Self::RawData, Self::ReadErr> {
         todo!()
     }
 }
