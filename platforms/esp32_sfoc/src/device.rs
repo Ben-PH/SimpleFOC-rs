@@ -143,10 +143,10 @@ pub struct UnitReader<'a, const UNIT_NUM: usize>(pub Unit<'a, UNIT_NUM>);
 impl<'a, const UNIT_NUM: usize> discrete_count::CountReader for UnitReader<'a, UNIT_NUM> {
     type ReadErr = ();
 
-    type RawData = u16;
+    type RawData = i16;
 
-    fn read() -> Result<Self::RawData, Self::ReadErr> {
-        todo!()
+    fn read(&self) -> Result<Self::RawData, Self::ReadErr> {
+        Ok(self.0.counter.get())
     }
 }
 
