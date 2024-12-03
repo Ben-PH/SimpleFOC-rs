@@ -15,7 +15,7 @@ use esp_hal::{
     prelude::*,
 };
 
-use sfoc_rs::{
+use sfoc_rs_core::{
     bldc_driver::MotorPins,
     common::helpers::{DutyCycle, Triplet},
     foc_control::FOController,

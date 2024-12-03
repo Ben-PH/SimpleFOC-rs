@@ -11,10 +11,15 @@ members = [
 	"platforms/esp32_sfoc",
 ]
 exclude = [
-	"prototype"
+	"prototype",
+	"spinnies",
 ]
 
 
 [dependencies]
+esp32_sfoc = { version = "0.1.0", path = "platforms/esp32_sfoc", optional = true }
 sfoc_rs_core = { version = "0.0.1", path = "./core" }
+
+[features]
+esp32 = ["dep:esp32_sfoc"]
 
