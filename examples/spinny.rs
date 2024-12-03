@@ -63,7 +63,7 @@ fn foc_main(mut driver: SomePlatformSpecificImpl) -> ! {
 struct SomePlatformSpecificImpl;
 
 impl FOController for SomePlatformSpecificImpl {
-    fn set_psu_millivolt(&self, mv: u16) {
+    fn set_psu_millivolt(&self, _mv: u16) {
         unimplemented!()
     }
 }

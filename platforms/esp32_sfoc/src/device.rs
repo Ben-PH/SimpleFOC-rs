@@ -2,14 +2,13 @@ use core::marker::PhantomData;
 use embedded_hal::pwm::SetDutyCycle;
 use esp_backtrace as _;
 use esp_hal::{
-    clock::Clocks,
     gpio::interconnect::PeripheralOutput,
     mcpwm::{
         operator::{PwmActions, PwmPin, PwmPinConfig, PwmUpdateMethod},
         timer::PwmWorkingMode,
         McPwm, PeripheralClockConfig, PwmPeripheral,
     },
-    pcnt::{channel, unit, Pcnt},
+    pcnt::{channel, Pcnt},
     peripheral::Peripheral,
     peripherals,
     prelude::*,
@@ -108,11 +107,11 @@ impl<
         mcpwm_periph.timer0.start(pw_timer_cfg);
 
         let pcnt = Pcnt::new(pcnt_periph);
-        let mut pcnt_unit0 = pcnt.unit0;
-        pcnt_unit0.set_low_limit(Some(-100));
-        pcnt_unit0.set_high_limit(Some(100));
+        let pcnt_unit0 = pcnt.unit0;
+        let _ = pcnt_unit0.set_low_limit(Some(-100));
+        let _ = pcnt_unit0.set_high_limit(Some(100));
 
-        let mut pcnt_chann0 = &pcnt_unit0.channel0;
+        let pcnt_chann0 = &pcnt_unit0.channel0;
         pcnt_chann0.set_ctrl_signal(encoder_pins.0);
         pcnt_chann0.set_edge_signal(encoder_pins.1);
         pcnt_chann0.set_input_mode(channel::EdgeMode::Decrement, channel::EdgeMode::Increment);
@@ -145,7 +144,7 @@ where
     PwmPin<'d, PwmOp, 1, true>: SetDutyCycle,
     PwmPin<'d, PwmOp, 2, true>: SetDutyCycle,
 {
-    fn set_psu_millivolt(&self, mv: u16) {
+    fn set_psu_millivolt(&self, _mv: u16) {
         todo!()
     }
 }
