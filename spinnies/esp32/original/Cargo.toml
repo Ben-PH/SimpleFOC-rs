@@ -19,6 +19,7 @@ defmt            = "0.3.8"
 defmt-rtt        = "0.4.1"
 critical-section = "1.2.0"
 sfoc_rs = { version = "0.3.0", path = "../../..", features = ["esp32"] }
+generic_spinny = { version = "0.1.0", path = "../../generic_spinny" }
 
 [profile.dev]
 # Rust debug is too slow.

@@ -9,7 +9,7 @@ use esp_hal::{
         timer::PwmWorkingMode,
         McPwm, PeripheralClockConfig, PwmPeripheral,
     },
-    pcnt::{channel, unit::Unit, Pcnt},
+    pcnt::unit::Unit,
     peripheral::Peripheral,
     peripherals,
     prelude::*,
@@ -100,9 +100,7 @@ impl<'d, PwmOp: PwmPeripheral> Esp3PWM<'d, PwmOp> {
         // pcnt_chann0.set_edge_signal(encoder_pins.1);
         // pcnt_chann0.set_input_mode(channel::EdgeMode::Decrement, channel::EdgeMode::Increment);
 
-        Self {
-            motor_triplet,
-        }
+        Self { motor_triplet }
     }
 }
 
@@ -150,14 +148,19 @@ impl<'a, const UNIT_NUM: usize> discrete_count::CountReader for UnitReader<'a, U
     }
 }
 
-impl<'a, A, B, const UNIT_NUM: usize, Resolution, Measure> discrete_count::Counter for EspPcnt<'a, A, B, UNIT_NUM, Resolution, Measure> {
+impl<'a, A, B, const UNIT_NUM: usize, Resolution, Measure> discrete_count::Counter
+    for EspPcnt<'a, A, B, UNIT_NUM, Resolution, Measure>
+{
     type Reader = UnitReader<'a, UNIT_NUM>;
 
     type Resolution = Resolution;
 
     type Measure = Measure;
 
-    fn update_count_state(&mut self, count: discrete_count::CountRaw<Self>) -> Result<(), <Self::Reader as discrete_count::CountReader>::ReadErr> {
+    fn update_count_state(
+        &mut self,
+        count: discrete_count::CountRaw<Self>,
+    ) -> Result<(), <Self::Reader as discrete_count::CountReader>::ReadErr> {
         todo!()
     }
 
@@ -165,7 +168,9 @@ impl<'a, A, B, const UNIT_NUM: usize, Resolution, Measure> discrete_count::Count
         todo!()
     }
 
-    fn try_update_count(&mut self) -> Result<(), <Self::Reader as discrete_count::CountReader>::ReadErr> {
+    fn try_update_count(
+        &mut self,
+    ) -> Result<(), <Self::Reader as discrete_count::CountReader>::ReadErr> {
         todo!()
     }
 
@@ -179,7 +184,10 @@ impl<'a, A, B, const UNIT_NUM: usize, Resolution, Measure> discrete_count::Count
         todo!()
     }
 
-    fn try_update_and_measure(&mut self, count: &discrete_count::CountRaw<Self>) -> Result<Self::Measure, <Self::Reader as discrete_count::CountReader>::ReadErr> {
+    fn try_update_and_measure(
+        &mut self,
+        count: &discrete_count::CountRaw<Self>,
+    ) -> Result<Self::Measure, <Self::Reader as discrete_count::CountReader>::ReadErr> {
         todo!()
     }
 

@@ -26,7 +26,7 @@ critical-section = "1.2.0"
 esp-hal = { version = "0.22.0", features = [ "esp32", "defmt" ] }
 fixed = "1.27.0"
 foc = "0.3.0"
-fugit = "0.3.7"
+fugit = { git = "https://github.com/Ben-PH/fugit.git", rev = "aad2d2d97f45b9b12076648b78857f47ff6f1c1b", version = "0.4.0" }
 log = { version = "0.4.20" }
 sfoc_rs_core = {path = "../../core"}
 typenum = "1.17.0"

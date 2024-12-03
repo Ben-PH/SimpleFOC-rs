@@ -192,19 +192,9 @@ dependencies = [
 [[package]]
 name = "discrete_count"
 version = "0.0.2"
-source = "git+https://github.com/Ben-PH/discrete_count?rev=15f55d4680b418b6fa5bb954c3c320b89af6ee9e#15f55d4680b418b6fa5bb954c3c320b89af6ee9e"
+source = "git+https://github.com/Ben-PH/discrete_count?rev=2b04f9d6953ffeba56fb4ee36ad4ca3522457250#2b04f9d6953ffeba56fb4ee36ad4ca3522457250"
 dependencies = [
- "discrete_count_core 0.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "fixed",
- "typenum",
-]
-
-[[package]]
-name = "discrete_count"
-version = "0.0.2"
-source = "git+https://github.com/Ben-PH/discrete_count?rev=de1ce8d5987319aeea4dba678d86659787aaf951#de1ce8d5987319aeea4dba678d86659787aaf951"
-dependencies = [
- "discrete_count_core 0.0.2 (git+https://github.com/Ben-PH/discrete_count?rev=de1ce8d5987319aeea4dba678d86659787aaf951)",
+ "discrete_count_core",
  "fixed",
  "typenum",
 ]
@@ -214,11 +204,6 @@ name = "discrete_count_core"
 version = "0.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f112db7875891b885dd69e43af92618d79fef9a803b0a513b601818b7fc5cdb"
-
-[[package]]
-name = "discrete_count_core"
-version = "0.0.2"
-source = "git+https://github.com/Ben-PH/discrete_count?rev=de1ce8d5987319aeea4dba678d86659787aaf951#de1ce8d5987319aeea4dba678d86659787aaf951"
 
 [[package]]
 name = "document-features"
@@ -583,7 +568,7 @@ dependencies = [
  "critical-section",
  "defmt",
  "defmt-rtt",
- "discrete_count 0.0.2 (git+https://github.com/Ben-PH/discrete_count?rev=15f55d4680b418b6fa5bb954c3c320b89af6ee9e)",
+ "discrete_count",
  "embedded-hal 1.0.0",
  "embedded-time",
  "esp-backtrace",
@@ -1129,7 +1114,7 @@ name = "sfoc_rs_core"
 version = "0.0.1"
 dependencies = [
  "cordic",
- "discrete_count 0.0.2 (git+https://github.com/Ben-PH/discrete_count?rev=de1ce8d5987319aeea4dba678d86659787aaf951)",
+ "discrete_count",
  "embedded-hal 1.0.0",
  "embedded-time",
  "foc",
