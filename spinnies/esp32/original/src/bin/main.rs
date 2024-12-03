@@ -2,7 +2,6 @@
 #![no_main]
 
 use esp_backtrace as _;
-use esp_hal::pcnt::unit::Unit;
 use esp_hal::prelude::*;
 
 use defmt_rtt as _;
@@ -23,14 +22,14 @@ fn main() -> ! {
     let pin1 = peripherals.GPIO1;
     let pin2 = peripherals.GPIO2;
     let pin3 = peripherals.GPIO3;
-    let pin4 = peripherals.GPIO4;
-    let pin5 = peripherals.GPIO5;
+    // let pin4 = peripherals.GPIO4;
+    // let pin5 = peripherals.GPIO5;
 
-    let mut driver: Esp3PWM<'_, _, Unit<'_, 0>> = Esp3PWM::new(
+    let mut driver: Esp3PWM<'_, _> = Esp3PWM::init(
         peripherals.MCPWM0,
         peripherals.PCNT,
         (pin1, pin2, pin3),
-        (pin4, pin5),
+        // (pin4, pin5),
     );
 
     FOController::set_phase_voltage(
