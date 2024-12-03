@@ -4,10 +4,12 @@ use micromath::F32;
 use crate::common::helpers::{ABCurrent, Current, DQCurrent, PhaseCurrent};
 
 pub trait CurrentSensor: Sized {
-    fn init_current_sensor() -> Result<Self, ()>;
+    // TODO: core error stabalised in rust 1.81 
+    type InitError; // : core::error::Error;
+    fn init_current_sensor() -> Result<Self, Self::InitError>;
     // fn link_driver?(&mut self, driver: BLDCDriver);
     // fn linked_driver?(&self) -> Option<&BLDCDriver>;
-    fn driver_allign(&self, allign_voltage: f32) -> Result<(), ()>;
+    fn driver_allign(&self, allign_voltage: f32);
     fn get_phase_currents(&self) -> PhaseCurrent;
     fn get_dc_current(&self, phase_theta: Option<f32>) -> f32 {
         let phase_current = self.get_phase_currents();
