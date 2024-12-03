@@ -1,0 +1,7 @@
+[package]
+name = "as5047p"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+sfoc_rs_core = { version = "0.0.1", path = "../../core" }

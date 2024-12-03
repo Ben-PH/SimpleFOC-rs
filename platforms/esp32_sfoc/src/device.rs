@@ -1,4 +1,3 @@
-use core::marker::PhantomData;
 use embedded_hal::pwm::SetDutyCycle;
 use esp_backtrace as _;
 use esp_hal::{
@@ -8,7 +7,7 @@ use esp_hal::{
         timer::PwmWorkingMode,
         McPwm, PeripheralClockConfig, PwmPeripheral,
     },
-    pcnt::{channel, Pcnt},
+    pcnt::{channel, unit::Unit, Pcnt},
     peripheral::Peripheral,
     peripherals,
     prelude::*,
@@ -20,31 +19,15 @@ use sfoc_rs_core::{
     foc_control::FOController,
 };
 
-use crate::posn_encoder::EncoderPosn;
+// use crate::posn_encoder::EncoderPosn;
 
-pub struct Esp3PWM<'d, PwmOp, Pos> {
-    // mcpwm_periph: McPwm<'d, PwmOp>,
+pub struct Esp3PWM<'d, PwmOp, PcntPeriph> {
     motor_triplet:
         Triplet<PwmPin<'d, PwmOp, 0, true>, PwmPin<'d, PwmOp, 1, true>, PwmPin<'d, PwmOp, 2, true>>,
-    pulse_counter: PhantomData<Pos>,
-    // time_src: PhantomData<Tim>,
-    // _motion_ctrl: M,
+    pulse_counter: PcntPeriph,
 }
 
-impl<
-        'd,
-        PwmOp: PwmPeripheral,
-        const UNIT_NUM: usize,
-        // T: TimerGroupInstance,
-    >
-    Esp3PWM<
-        'd,
-        PwmOp,
-        EncoderPosn<'_, UNIT_NUM>,
-        // TimerGroup<'d, T, Blocking>,
-        // DefaultMotionCtrl<Timer0<T>, EncoderPosn>,
-    >
-{
+impl<'d, PwmOp: PwmPeripheral> Esp3PWM<'d, PwmOp, Unit<'d, 0>> {
     /// Takes in the peripherals needed in order run a motor:
     ///  - pin_a/b/c: These pins will be attached to the mcpwm peripheral
     ///  - enc_a/b: these pins will be attached to the Pcnt peripheral.
@@ -118,7 +101,7 @@ impl<
 
         Self {
             motor_triplet,
-            pulse_counter: PhantomData,
+            pulse_counter: pcnt_unit0,
         }
     }
 }
@@ -138,7 +121,7 @@ where
     }
 }
 
-impl<'d, PwmOp, Pos> FOController for Esp3PWM<'d, PwmOp, Pos>
+impl<'d, PwmOp, PcntUnit> FOController for Esp3PWM<'d, PwmOp, PcntUnit>
 where
     PwmPin<'d, PwmOp, 0, true>: SetDutyCycle,
     PwmPin<'d, PwmOp, 1, true>: SetDutyCycle,

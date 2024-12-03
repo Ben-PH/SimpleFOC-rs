@@ -9,6 +9,7 @@ license = "MIT OR Apache-2.0"
 members = [
 	"core",
 	"platforms/esp32_sfoc",
+	"peripherals/AS5047P"
 ]
 exclude = [
 	"prototype",

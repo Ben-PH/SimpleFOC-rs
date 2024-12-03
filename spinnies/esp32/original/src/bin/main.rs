@@ -2,6 +2,7 @@
 #![no_main]
 
 use esp_backtrace as _;
+use esp_hal::pcnt::unit::Unit;
 use esp_hal::prelude::*;
 
 use defmt_rtt as _;
@@ -11,7 +12,6 @@ use defmt_rtt as _;
 use sfoc_rs::esp32_sfoc::device::Esp3PWM;
 use sfoc_rs::{
     bldc_driver::MotorPins,
-    esp32_sfoc::posn_encoder,
     foc_control::{FOController, PhaseAngle},
     rexports::{discrete_count::re_exports::fixed::types::I16F16, foc},
 };
@@ -26,7 +26,7 @@ fn main() -> ! {
     let pin4 = peripherals.GPIO4;
     let pin5 = peripherals.GPIO5;
 
-    let mut driver: Esp3PWM<'_, _, posn_encoder::EncoderPosn<'_, 0>> = Esp3PWM::new(
+    let mut driver: Esp3PWM<'_, _, Unit<'_, 0>> = Esp3PWM::new(
         peripherals.MCPWM0,
         peripherals.PCNT,
         (pin1, pin2, pin3),
@@ -42,7 +42,7 @@ fn main() -> ! {
         PhaseAngle(I16F16::PI),
     );
     MotorPins::set_zero(&mut driver);
-    driver.get_position_um();
+    // driver.get_position_um();
     #[allow(clippy::empty_loop)]
     loop {}
 }
