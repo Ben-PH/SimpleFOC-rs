@@ -4,7 +4,7 @@ use micromath::F32;
 use crate::common::helpers::{ABCurrent, Current, DQCurrent, PhaseCurrent};
 
 pub trait CurrentSensor: Sized {
-    // TODO: core error stabalised in rust 1.81 
+    // TODO: core error stabalised in rust 1.81
     type InitError; // : core::error::Error;
     fn init_current_sensor() -> Result<Self, Self::InitError>;
     // fn link_driver?(&mut self, driver: BLDCDriver);
