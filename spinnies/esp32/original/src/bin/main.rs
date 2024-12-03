@@ -1,28 +1,23 @@
 #![no_std]
 #![no_main]
 
-mod device;
-mod posn_encoder;
-mod time_source;
-
-use defmt_rtt as _;
-use device::Esp3PWM;
 use esp_backtrace as _;
-use esp_hal::{
-    clock::Clocks,
-    mcpwm::{operator::PwmPinConfig, timer::PwmWorkingMode, McPwm, PeripheralClockConfig},
-    peripherals::Peripherals,
-    prelude::*,
-};
+use esp_hal::prelude::*;
 
-use fixed::types::I16F16;
+ use defmt_rtt as _;
+ // use defmt::info;
+
+
+// use fixed::types::I16F16;
 use sfoc_rs::{
-    bldc_driver::MotorPins,
-    foc_control::{FOController, PhaseAngle},
+
+    bldc_driver::MotorPins, esp32_sfoc::posn_encoder, foc_control::{FOController, PhaseAngle}, rexports::{discrete_count::re_exports::fixed::types::I16F16, foc}
 };
-// use sfoc_rs_core::
-#[esp_hal::entry]
+use sfoc_rs::esp32_sfoc::device::Esp3PWM;
+
+#[entry]
 fn main() -> ! {
+
     let peripherals = esp_hal::init(esp_hal::Config::default());
 
     let pin1 = peripherals.GPIO1;

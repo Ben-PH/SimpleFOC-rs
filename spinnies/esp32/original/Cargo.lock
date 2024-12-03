@@ -923,6 +923,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "original"
+version = "0.1.0"
+dependencies = [
+ "critical-section",
+ "defmt",
+ "defmt-rtt",
+ "esp-backtrace",
+ "esp-hal",
+ "sfoc_rs",
+]
+
+[[package]]
 name = "paste"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
