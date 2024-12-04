@@ -9,13 +9,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c95c10ba0b00a02636238b814946408b1322d5ac4760326e6fb8ec956d85775"
 
 [[package]]
-name = "as5047p"
-version = "0.0.1"
-dependencies = [
- "sfoc_rs_core",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -199,7 +192,7 @@ dependencies = [
 [[package]]
 name = "discrete_count"
 version = "0.0.2"
-source = "git+https://github.com/Ben-PH/discrete_count?rev=de1ce8d5987319aeea4dba678d86659787aaf951#de1ce8d5987319aeea4dba678d86659787aaf951"
+source = "git+https://github.com/Ben-PH/discrete_count?rev=2b04f9d6953ffeba56fb4ee36ad4ca3522457250#2b04f9d6953ffeba56fb4ee36ad4ca3522457250"
 dependencies = [
  "discrete_count_core",
  "fixed",
@@ -209,7 +202,8 @@ dependencies = [
 [[package]]
 name = "discrete_count_core"
 version = "0.0.2"
-source = "git+https://github.com/Ben-PH/discrete_count?rev=de1ce8d5987319aeea4dba678d86659787aaf951#de1ce8d5987319aeea4dba678d86659787aaf951"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f112db7875891b885dd69e43af92618d79fef9a803b0a513b601818b7fc5cdb"
 
 [[package]]
 name = "document-features"
@@ -494,7 +488,7 @@ dependencies = [
  "esp32h2",
  "esp32s2",
  "esp32s3",
- "fugit 0.3.7",
+ "fugit",
  "nb 1.1.0",
  "paste",
  "portable-atomic",
@@ -581,7 +575,7 @@ dependencies = [
  "esp-hal",
  "fixed",
  "foc",
- "fugit 0.4.0",
+ "fugit",
  "log",
  "sfoc_rs_core",
  "typenum",
@@ -692,15 +686,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fugit"
-version = "0.4.0"
-source = "git+https://github.com/Ben-PH/fugit.git?rev=aad2d2d97f45b9b12076648b78857f47ff6f1c1b#aad2d2d97f45b9b12076648b78857f47ff6f1c1b"
-dependencies = [
- "gcd",
- "typenum",
-]
-
-[[package]]
 name = "futures-core"
 version = "0.3.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -735,14 +720,6 @@ name = "gcd"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d758ba1b47b00caf47f24925c0074ecb20d6dfcffe7f6d53395c0465674841a"
-
-[[package]]
-name = "generic_spinny"
-version = "0.1.0"
-dependencies = [
- "fugit 0.4.0",
- "sfoc_rs",
-]
 
 [[package]]
 name = "half"
@@ -939,7 +916,6 @@ dependencies = [
  "defmt-rtt",
  "esp-backtrace",
  "esp-hal",
- "generic_spinny",
  "sfoc_rs",
 ]
 
@@ -1129,7 +1105,6 @@ dependencies = [
 name = "sfoc_rs"
 version = "0.3.0"
 dependencies = [
- "embedded-hal 1.0.0",
  "esp32_sfoc",
  "sfoc_rs_core",
 ]

@@ -1,0 +1,8 @@
+[package]
+name = "generic_spinny"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+fugit = { git = "https://github.com/Ben-PH/fugit.git", rev = "aad2d2d97f45b9b12076648b78857f47ff6f1c1b", version = "0.4.0" }
+sfoc_rs = { version = "0.3.0", path = "../.." }

@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 defmt = "0.3.10"
 defmt-rtt = "0.4.1"
-discrete_count = {git = "https://github.com/Ben-PH/discrete_count", rev = "15f55d4680b418b6fa5bb954c3c320b89af6ee9e", features = ["typenum", "fixed"]}
+discrete_count = {git = "https://github.com/Ben-PH/discrete_count", rev = "de1ce8d5987319aeea4dba678d86659787aaf951", features = ["typenum", "fixed"]}
 embedded-hal = "1.0.0"
 embedded-time = "0.12.1"
 esp-backtrace = { version = "0.14.2", features = [
@@ -19,11 +19,15 @@ esp-backtrace = { version = "0.14.2", features = [
     # "println",
     # "uart"
 ] }
+
+critical-section = "1.2.0"
+
+
 esp-hal = { version = "0.22.0", features = [ "esp32", "defmt" ] }
 fixed = "1.27.0"
 foc = "0.3.0"
-fugit = "0.3.7"
+fugit = { git = "https://github.com/Ben-PH/fugit.git", rev = "aad2d2d97f45b9b12076648b78857f47ff6f1c1b", version = "0.4.0" }
 log = { version = "0.4.20" }
-sfoc_rs = {path = "../.."}
+sfoc_rs_core = {path = "../../core"}
 typenum = "1.17.0"
 
