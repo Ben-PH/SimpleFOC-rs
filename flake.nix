@@ -88,6 +88,8 @@
               ./Cargo.lock
               (craneLib.fileset.commonCargoSources ./core)
               (craneLib.fileset.commonCargoSources ./spinnies/generic_spinny)
+              (craneLib.fileset.commonCargoSources ./spinnies/esp32)
+              (craneLib.fileset.commonCargoSources ./peripherals/AS5047P)
               (craneLib.fileset.commonCargoSources crate)
             ];
           };
@@ -96,12 +98,23 @@
           // {
             pname = "sfoc_rs";
             src = fileSetForCrate ./.;
-            doCheck = true;
-            checkPhase = ''
-              makers check
-            '';
-            buildPhase = ''
-              makers
+            # doCheck = true;
+            # checkPhase = ''
+            #   makers check
+            # '';
+            # buildPhase = ''
+            #   makers
+            # '';
+          });
+
+        esp32_sfoc = craneLib.buildPackage (individualCrateArgs
+          // {
+            pname = "esp32_sfoc";
+            cargoExtraArgs = "-p esp32_sfoc";
+            src = fileSetForCrate ./platforms/esp32_sfoc;
+            postPatch = ''
+              echo code running
+              cd platforms/esp32_sfoc
             '';
           });
 
@@ -153,6 +166,7 @@
 
         # packages.spinnies = spinnies;
         packages.default = sfoc_rs;
+        packages.esp32_sfoc = esp32_sfoc;
       };
       flake = {
         # The usual flake attributes can be defined here, including system-

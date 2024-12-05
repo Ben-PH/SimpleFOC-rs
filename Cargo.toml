@@ -25,3 +25,5 @@ sfoc_rs_core = { version = "0.0.1", path = "./core" }
 [features]
 esp32 = ["dep:esp32_sfoc"]
 
+[lib]
+path = "src/lib.rs"
