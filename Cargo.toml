@@ -11,6 +11,7 @@ members = [
 	"platforms/esp32_sfoc",
 	"peripherals/AS5047P",
 	"spinnies/esp32/original", "spinnies/generic_spinny",
+	"spinnies/esp32/s3",
 ]
 exclude = [
 	"prototype",
