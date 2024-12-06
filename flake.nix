@@ -46,6 +46,7 @@
           nativeBuildInputs = [
             pkgs.gnumake
             pkgs.cargo-make
+            pkgs.espflash
           ];
 
           buildInputs =
@@ -154,6 +155,7 @@
               fd
               cargo-make
               gnumake
+              espflash
             ])
             ++ [
               esp-rust
