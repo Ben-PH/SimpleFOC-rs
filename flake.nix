@@ -63,9 +63,9 @@
           # MY_CUSTOM_VAR = "some value";
         };
 
-        craneLibLLvmTools =
-          craneLib.overrideToolchain
-          esp-rust;
+        # craneLib =
+        #   craneLib.overrideToolchain
+        #   esp-rust;
 
         # Build *just* the cargo dependencies (of the entire workspace),
         # so we can reuse all of that work (e.g. via cachix) when running in CI
@@ -96,7 +96,7 @@
             ];
           };
 
-        sfoc_rs = craneLibLLvmTools.buildPackage (individualCrateArgs
+        sfoc_rs = craneLib.buildPackage (individualCrateArgs
           // {
             pname = "sfoc_rs";
             src = fileSetForCrate ./.;
@@ -109,11 +109,30 @@
             # '';
           });
 
-        esp32_sfoc = craneLibLLvmTools.buildPackage (individualCrateArgs
+        esp32_sfoc = craneLib.buildPackage (individualCrateArgs
           // {
             pname = "esp32_sfoc";
-            cargoExtraArgs = "-p esp32_sfoc";
+            cargoExtraArgs = "-p esp32_sfoc -Z build-std";
+
+            cargoVendorDir = craneLib.vendorMultipleCargoDeps {
+              inherit (craneLib.findCargoFiles src) cargoConfigs;
+              cargoLockList = [
+                ./Cargo.lock
+
+                # Unfortunately this approach requires IFD (import-from-derivation)
+                # otherwise Nix will refuse to read the Cargo.lock from our toolchain
+                # (unless we build with `--impure`).
+                #
+                # Another way around this is to manually copy the rustlib `Cargo.lock`
+                # to the repo and import it with `./path/to/rustlib/Cargo.lock` which
+                # will avoid IFD entirely but will require manually keeping the file
+                # up to date!
+                "${esp-rust}/lib/rustlib/src/rust/Cargo.lock"
+                # "/nix/store/d9r076qnij4h0b1dhm2hq1dchb59k1sp-esp-rs/lib/rustlib/src/rust/library/Cargo.lock"
+              ];
+            };
             src = fileSetForCrate ./platforms/esp32_sfoc;
+
             postPatch = ''
               echo code running
               cd platforms/esp32_sfoc
@@ -128,7 +147,7 @@
         # Note that the cargo workspace must define `workspace.members` using wildcards,
         # otherwise, omitting a crate (like we do below) will result in errors since
         # cargo won't be able to find the sources for all members.
-        spinnies = craneLibLLvmTools.buildPackage (individualCrateArgs
+        spinnies = craneLib.buildPackage (individualCrateArgs
           // {
             pname = "spinnies";
             cargoExtraArgs = "-p spinnies";
