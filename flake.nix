@@ -36,7 +36,8 @@
         ...
       }: let
         esp-rust = inputs.esp-rs-nix.packages.${pkgs.system}.default;
-        craneLib = inputs.crane.mkLib pkgs;
+        # craneLib = inputs.crane.mkLib pkgs;
+        craneLib = (inputs.crane.mkLib pkgs).overrideToolchain esp-rust;
         src = craneLib.cleanCargoSource ./.;
 
         commonArgs = {
@@ -95,7 +96,7 @@
             ];
           };
 
-        sfoc_rs = craneLib.buildPackage (individualCrateArgs
+        sfoc_rs = craneLibLLvmTools.buildPackage (individualCrateArgs
           // {
             pname = "sfoc_rs";
             src = fileSetForCrate ./.;
@@ -108,7 +109,7 @@
             # '';
           });
 
-        esp32_sfoc = craneLib.buildPackage (individualCrateArgs
+        esp32_sfoc = craneLibLLvmTools.buildPackage (individualCrateArgs
           // {
             pname = "esp32_sfoc";
             cargoExtraArgs = "-p esp32_sfoc";
@@ -127,7 +128,7 @@
         # Note that the cargo workspace must define `workspace.members` using wildcards,
         # otherwise, omitting a crate (like we do below) will result in errors since
         # cargo won't be able to find the sources for all members.
-        spinnies = craneLib.buildPackage (individualCrateArgs
+        spinnies = craneLibLLvmTools.buildPackage (individualCrateArgs
           // {
             pname = "spinnies";
             cargoExtraArgs = "-p spinnies";
